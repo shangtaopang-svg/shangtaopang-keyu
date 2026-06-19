@@ -13,6 +13,30 @@ const { fetchVideosFromUrl, saveFetchedVideos, detectPlatform, getPlatformName }
 const { generateFullAnalysis } = require('./analyzer');
 const { classifyVideo } = require('./classifier');
 
+// ---- 内存缓存 (TTL 30秒，读写操作时自动失效) ----
+const cache = { _data: {}, _timers: {} };
+function cacheGet(key) {
+  const entry = cache._data[key];
+  if (!entry) return null;
+  if (Date.now() > entry.expires) { delete cache._data[key]; return null; }
+  return entry.value;
+}
+function cacheSet(key, value, ttl = 30000) {
+  cache._data[key] = { value, expires: Date.now() + ttl };
+  if (cache._timers[key]) clearTimeout(cache._timers[key]);
+}
+function cacheClear() { cache._data = {}; }
+
+// 带缓存的查询（适用不常变的数据，缓存30秒）
+function cachedQuery(sql, params = []) {
+  const key = sql + '|' + JSON.stringify(params);
+  const cached = cacheGet(key);
+  if (cached !== null) return cached;
+  const result = query(sql, params);
+  cacheSet(key, result);
+  return result;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -74,6 +98,8 @@ const upload = multer({
 
 // ---- Auth 中间件 ----
 function authMiddleware(req, res, next) {
+  // 管理后台写操作后清除页面缓存
+  if (['POST','PUT','DELETE','PATCH'].includes(req.method)) cacheClear();
   const token = req.cookies?.token || req.headers?.authorization?.replace('Bearer ', '');
   if (!token) {
     // API 请求返回 JSON，页面请求重定向到登录页
@@ -98,7 +124,8 @@ function authMiddleware(req, res, next) {
 
 // 首页
 app.get('/', (req, res) => {
-  const featured = query(`SELECT v.*, c.name as category_name, c.slug as category_slug,
+  // 首页数据缓存30秒
+  const featured = cachedQuery(`SELECT v.*, c.name as category_name, c.slug as category_slug,
     c.icon as category_icon, m.name as model_name, m.slug as model_slug, m.icon as model_icon,
     b.name as blogger_name, b.slug as blogger_slug
     FROM videos v
@@ -108,7 +135,7 @@ app.get('/', (req, res) => {
     WHERE v.featured = 1 AND v.status = 'published'
     ORDER BY v.created_at DESC LIMIT 6`);
 
-  const latest = query(`SELECT v.*, c.name as category_name, c.slug as category_slug,
+  const latest = cachedQuery(`SELECT v.*, c.name as category_name, c.slug as category_slug,
     c.icon as category_icon, m.name as model_name, m.slug as model_slug, m.icon as model_icon,
     b.name as blogger_name, b.slug as blogger_slug
     FROM videos v
@@ -118,27 +145,27 @@ app.get('/', (req, res) => {
     WHERE v.status = 'published' AND (v.platform IS NULL OR v.platform != '小红书')
     ORDER BY v.created_at DESC LIMIT 12`);
 
-  const categories = query(`SELECT c.*, (SELECT COUNT(*) FROM videos WHERE category_id = c.id AND status = 'published') as video_count FROM categories c ORDER BY c.sort_order`);
+  const categories = cachedQuery(`SELECT c.*, (SELECT COUNT(*) FROM videos WHERE category_id = c.id AND status = 'published') as video_count FROM categories c ORDER BY c.sort_order`);
 
   // 获取每个分类下的子分类（全部显示）及视频
   const categoryTree = [];
   for (const cat of categories) {
-    const subs = query(`SELECT s.*, (SELECT COUNT(*) FROM videos WHERE subcategory_id = s.id AND status = 'published') as video_count
+    const subs = cachedQuery(`SELECT s.*, (SELECT COUNT(*) FROM videos WHERE subcategory_id = s.id AND status = 'published') as video_count
       FROM subcategories s WHERE s.category_id = ? ORDER BY s.sort_order`, [cat.id]);
     const subVideos = {};
     for (const sub of subs) {
-      subVideos[sub.id] = query(`SELECT v.id, v.title, v.thumbnail, v.url, v.duration, v.platform, v.embed_code
+      subVideos[sub.id] = cachedQuery(`SELECT v.id, v.title, v.thumbnail, v.url, v.duration, v.platform, v.embed_code
         FROM videos v WHERE v.subcategory_id = ? AND v.status = 'published'
         ORDER BY v.created_at DESC LIMIT 3`, [sub.id]);
     }
     categoryTree.push({ category: cat, subcategories: subs, subVideos });
   }
 
-  const models = query(`SELECT m.*, (SELECT COUNT(*) FROM videos WHERE ai_model_id = m.id AND status = 'published') as video_count FROM ai_models m ORDER BY m.sort_order`);
-  const featuredBloggers = query(`SELECT b.*, (SELECT COUNT(*) FROM videos WHERE blogger_id = b.id AND status = 'published') as video_count FROM bloggers b WHERE b.status = 'active' AND b.featured = 1 ORDER BY video_count DESC LIMIT 4`);
+  const models = cachedQuery(`SELECT m.*, (SELECT COUNT(*) FROM videos WHERE ai_model_id = m.id AND status = 'published') as video_count FROM ai_models m ORDER BY m.sort_order`);
+  const featuredBloggers = cachedQuery(`SELECT b.*, (SELECT COUNT(*) FROM videos WHERE blogger_id = b.id AND status = 'published') as video_count FROM bloggers b WHERE b.status = 'active' AND b.featured = 1 ORDER BY video_count DESC LIMIT 4`);
 
   // 小红书视频专区（进站内页面，有分析有笔记）
-  const xiaohongshuVideos = query(`SELECT v.id, v.title, v.url, v.platform, v.created_at,
+  const xiaohongshuVideos = cachedQuery(`SELECT v.id, v.title, v.url, v.platform, v.created_at,
     b.name as blogger_name, b.slug as blogger_slug
     FROM videos v
     LEFT JOIN bloggers b ON v.blogger_id = b.id
@@ -147,7 +174,7 @@ app.get('/', (req, res) => {
 
   const bloggerCategories = {};
   for (const b of featuredBloggers) {
-    bloggerCategories[b.id] = query(`SELECT c.id, c.name, c.slug, c.icon, c.color, COUNT(*) as cnt
+    bloggerCategories[b.id] = cachedQuery(`SELECT c.id, c.name, c.slug, c.icon, c.color, COUNT(*) as cnt
       FROM videos v JOIN categories c ON v.category_id = c.id
       WHERE v.blogger_id = ? AND v.status = 'published'
       GROUP BY c.id ORDER BY cnt DESC LIMIT 5`, [b.id]);
@@ -219,13 +246,13 @@ function getWorks() {
 // 作品展示页
 app.get('/works', (req, res) => {
   const works = getWorks();
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('works', { title: '我的作品 - shangtaopang-可与', works, categories, currentPage: 'works' });
 });
 
 // 关于我
 app.get('/about', (req, res) => {
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('about', { title: '关于我 - shangtaopang-可与', categories, currentPage: 'about' });
 });
 
@@ -237,7 +264,7 @@ app.get('/works/:id', (req, res) => {
 
   // 推荐其他作品
   const related = works.filter(w => w.id !== work.id).slice(0, 3);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
 
   res.render('work-detail', {
     title: work.title + ' - shangtaopang-可与',
@@ -251,7 +278,7 @@ app.get('/works/:id', (req, res) => {
 // ---- 个人影集 ----
 app.get('/gallery', (req, res) => {
   const albums = query(`SELECT a.*, (SELECT COUNT(*) FROM photos WHERE album_id = a.id) as photo_count FROM photo_albums a ORDER BY a.sort_order, a.created_at DESC`);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   // 获取每个相册的封面图
   const albumCovers = {};
   for (const a of albums) {
@@ -265,7 +292,7 @@ app.get('/gallery/:id', (req, res) => {
   const album = get(`SELECT * FROM photo_albums WHERE id = ?`, [req.params.id]);
   if (!album) return res.status(404).render('error', { title: '相册未找到', message: '' });
   const photos = query(`SELECT * FROM photos WHERE album_id = ? ORDER BY sort_order, id`, [album.id]);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('gallery-album', { title: `${album.title} - shangtaopang-可与`, album, photos, categories, currentPage: 'gallery' });
 });
 
@@ -437,7 +464,7 @@ app.get('/video/:id', (req, res) => {
     WHERE v.category_id = ? AND v.id != ? AND v.status = 'published'
     ORDER BY v.created_at DESC LIMIT 6`, [video.category_id, video.id]);
 
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
 
   // 加载AI分析数据和学习笔记
   const { generateFullAnalysis } = require('./analyzer');
@@ -484,13 +511,13 @@ app.get('/search', (req, res) => {
 
 // 所有分类页
 app.get('/categories', (req, res) => {
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('categories', { title: '全部分类 - shangtaopang-可与', categories, currentPage: 'categories' });
 });
 
 // 所有模型页
 app.get('/models', (req, res) => {
-  const models = query(`SELECT * FROM ai_models ORDER BY sort_order`);
+  const models = cachedQuery(`SELECT * FROM ai_models ORDER BY sort_order`);
   res.render('models', { title: '全部AI模型 - shangtaopang-可与', models, currentPage: 'models' });
 });
 
@@ -498,7 +525,7 @@ app.get('/models', (req, res) => {
 app.get('/bloggers', (req, res) => {
   const bloggers = query(`SELECT b.*, (SELECT COUNT(*) FROM videos WHERE blogger_id = b.id AND status = 'published') as video_count
     FROM bloggers b WHERE b.status = 'active' ORDER BY b.video_count DESC`);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('bloggers', { title: '博主专栏 - shangtaopang-可与', bloggers, categories, currentPage: 'bloggers' });
 });
 
@@ -515,7 +542,7 @@ app.get('/blogger/:slug', (req, res) => {
     WHERE v.blogger_id = ? AND v.status = 'published'
     ORDER BY v.created_at DESC`, [blogger.id]);
 
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
 
   res.render('blogger', { title: `${blogger.name} - shangtaopang-可与`, blogger, videos, categories, currentPage: 'blogger' });
 });
@@ -586,7 +613,7 @@ app.get('/stats', (req, res) => {
     weekCheckins.push({ date: ds, checked: checkins.some(c => c.checkin_date === ds) });
   }
 
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('stats', {
     title: '学习统计 - shangtaopang-可与',
     stats: { totalVideos, totalNotes, totalViews, totalFavorites, streak },
@@ -617,7 +644,7 @@ app.get('/study', (req, res) => {
     watching: query(`SELECT COUNT(*) as c FROM learning_notes WHERE status = 'watching'`)[0].c,
     completed: query(`SELECT COUNT(*) as c FROM learning_notes WHERE status = 'completed'`)[0].c,
   };
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
 
   res.render('study', { title: '学习总结 - shangtaopang-可与', notes, stats, filterStatus, categories, currentPage: 'study' });
 });
@@ -628,7 +655,7 @@ app.get('/study/new', (req, res) => {
   let video = null;
   if (video_id) video = get('SELECT * FROM videos WHERE id = ?', [video_id]);
   const videos = query(`SELECT id, title FROM videos WHERE status = 'published' ORDER BY created_at DESC LIMIT 50`);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('study-form', { title: '添加学习笔记 - shangtaopang-可与', note: null, video, videos, categories, currentPage: 'study' });
 });
 
@@ -638,7 +665,7 @@ app.get('/study/edit/:id', (req, res) => {
   let video = null;
   if (note.video_id) video = get('SELECT id, title FROM videos WHERE id = ?', [note.video_id]);
   const videos = query(`SELECT id, title FROM videos WHERE status = 'published' ORDER BY created_at DESC LIMIT 50`);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('study-form', { title: '编辑学习笔记 - shangtaopang-可与', note, video, videos, categories, currentPage: 'study' });
 });
 
@@ -683,7 +710,7 @@ app.get('/study/analyze/:videoId', (req, res) => {
     analysis = generateFullAnalysis(video);
   }
 
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
 
   res.render('analyze', {
     title: `视频分析 - ${video.title} - shangtaopang-可与`,
@@ -728,12 +755,12 @@ app.get('/api/videos', (req, res) => {
 });
 
 app.get('/api/categories', (req, res) => {
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.json({ categories });
 });
 
 app.get('/api/models', (req, res) => {
-  const models = query(`SELECT * FROM ai_models ORDER BY sort_order`);
+  const models = cachedQuery(`SELECT * FROM ai_models ORDER BY sort_order`);
   res.json({ models });
 });
 
@@ -763,7 +790,7 @@ app.get('/gramophone', (req, res) => {
 // ---- 出行轨迹 ----
 app.get('/travel', (req, res) => {
   const records = query(`SELECT * FROM travel_records ORDER BY start_date DESC`);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
 
   // 统计
   const totalTrips = records.length;
@@ -1067,8 +1094,8 @@ app.get('/admin/videos', authMiddleware, (req, res) => {
 
 // 添加视频页
 app.get('/admin/videos/new', authMiddleware, (req, res) => {
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
-  const models = query(`SELECT * FROM ai_models ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
+  const models = cachedQuery(`SELECT * FROM ai_models ORDER BY sort_order`);
   const bloggers = query(`SELECT * FROM bloggers WHERE status = 'active' ORDER BY name`);
   const subcategories = query(`SELECT * FROM subcategories ORDER BY category_id, sort_order`);
   res.render('admin/video-form', { title: '添加视频 - shangtaopang-可与', video: null, categories, models, bloggers, subcategories, admin: req.admin });
@@ -1078,8 +1105,8 @@ app.get('/admin/videos/new', authMiddleware, (req, res) => {
 app.get('/admin/videos/edit/:id', authMiddleware, (req, res) => {
   const video = get(`SELECT * FROM videos WHERE id = ?`, [req.params.id]);
   if (!video) return res.redirect('/admin/videos');
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
-  const models = query(`SELECT * FROM ai_models ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
+  const models = cachedQuery(`SELECT * FROM ai_models ORDER BY sort_order`);
   const bloggers = query(`SELECT * FROM bloggers WHERE status = 'active' ORDER BY name`);
   const subcategories = query(`SELECT * FROM subcategories ORDER BY category_id, sort_order`);
   res.render('admin/video-form', { title: '编辑视频 - shangtaopang-可与', video, categories, models, bloggers, subcategories, admin: req.admin });
@@ -1130,7 +1157,7 @@ app.post('/admin/videos/delete/:id', authMiddleware, (req, res) => {
 
 // 分类管理
 app.get('/admin/categories', authMiddleware, (req, res) => {
-  const categories = query(`SELECT c.*, (SELECT COUNT(*) FROM videos WHERE category_id = c.id) as video_count
+  const categories = cachedQuery(`SELECT c.*, (SELECT COUNT(*) FROM videos WHERE category_id = c.id) as video_count
     FROM categories c ORDER BY c.sort_order`);
   res.render('admin/categories', { title: '分类管理 - shangtaopang-可与', categories, admin: req.admin });
 });
@@ -1154,7 +1181,7 @@ app.post('/admin/categories/delete/:id', authMiddleware, (req, res) => {
 
 // AI模型管理
 app.get('/admin/models', authMiddleware, (req, res) => {
-  const models = query(`SELECT m.*, (SELECT COUNT(*) FROM videos WHERE ai_model_id = m.id) as video_count
+  const models = cachedQuery(`SELECT m.*, (SELECT COUNT(*) FROM videos WHERE ai_model_id = m.id) as video_count
     FROM ai_models m ORDER BY m.sort_order`);
   res.render('admin/models', { title: 'AI模型管理 - shangtaopang-可与', models, admin: req.admin });
 });
@@ -1182,7 +1209,7 @@ app.get('/admin/subcategories', authMiddleware, (req, res) => {
     (SELECT COUNT(*) FROM videos WHERE subcategory_id = s.id) as video_count
     FROM subcategories s LEFT JOIN categories c ON s.category_id = c.id
     ORDER BY s.category_id, s.sort_order`);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   res.render('admin/subcategories', { title: '子分类管理 - shangtaopang-可与', subs, categories, admin: req.admin });
 });
 
@@ -1283,8 +1310,8 @@ app.get('/admin/bloggers', authMiddleware, (req, res) => {
 
 // 添加博主页
 app.get('/admin/bloggers/new', authMiddleware, (req, res) => {
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
-  const models = query(`SELECT * FROM ai_models ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
+  const models = cachedQuery(`SELECT * FROM ai_models ORDER BY sort_order`);
   res.render('admin/blogger-form', { title: '添加博主 - shangtaopang-可与', blogger: null, categories, models, admin: req.admin, fetchResult: null });
 });
 
@@ -1292,8 +1319,8 @@ app.get('/admin/bloggers/new', authMiddleware, (req, res) => {
 app.get('/admin/bloggers/edit/:id', authMiddleware, (req, res) => {
   const blogger = get(`SELECT * FROM bloggers WHERE id = ?`, [req.params.id]);
   if (!blogger) return res.redirect('/admin/bloggers');
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
-  const models = query(`SELECT * FROM ai_models ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
+  const models = cachedQuery(`SELECT * FROM ai_models ORDER BY sort_order`);
   res.render('admin/blogger-form', { title: '编辑博主 - shangtaopang-可与', blogger, categories, models, admin: req.admin, fetchResult: null });
 });
 
@@ -1328,8 +1355,8 @@ app.post('/admin/bloggers/delete/:id', authMiddleware, (req, res) => {
 app.post('/admin/bloggers/fetch-preview', authMiddleware, async (req, res) => {
   const { url, category_id, ai_model_id } = req.body;
   const result = await fetchVideosFromUrl(url);
-  const categories = query(`SELECT * FROM categories ORDER BY sort_order`);
-  const models = query(`SELECT * FROM ai_models ORDER BY sort_order`);
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
+  const models = cachedQuery(`SELECT * FROM ai_models ORDER BY sort_order`);
 
   res.render('admin/blogger-form', {
     title: '抓取结果预览 - shangtaopang-可与',
