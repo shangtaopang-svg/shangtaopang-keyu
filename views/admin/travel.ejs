@@ -1,0 +1,210 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-toolbar">
+  <h2 class="admin-page-title">🗺️ <span data-zh="出行管理" data-en="Travel Management">出行管理</span></h2>
+  <button class="btn btn-primary" onclick="showForm()" data-zh="＋ 添加出行" data-en="＋ Add Trip">＋ 添加出行</button>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead><tr><th data-zh="行程" data-en="Route">行程</th><th data-zh="日期" data-en="Date">日期</th><th data-zh="车次" data-en="Train #">车次</th><th data-zh="目的" data-en="Purpose">目的</th><th data-zh="操作" data-en="Actions">操作</th></tr></thead>
+      <tbody>
+        <% if (records.length === 0) { %><tr><td colspan="5" class="text-center" data-zh="暂无记录" data-en="No records yet">暂无记录</td></tr><% } %>
+        <% records.forEach(r => { %>
+        <tr>
+          <td><strong><%= r.departure || '宁海' %> → <%= r.destination %></strong></td>
+          <td><%= r.start_date %><%= r.end_date && r.end_date !== r.start_date ? '~'+r.end_date : '' %></td>
+          <td><%= r.vehicle || r.segments ? (r.vehicle||'') + (r.segments ? ' 等多段' : '') : '-' %></td>
+          <td><%= r.purpose ? r.purpose.slice(0,20) : '-' %></td>
+          <td class="td-actions">
+            <button class="btn btn-sm btn-edit" onclick='editRow(<%= JSON.stringify(r).replace(/'/g,"&apos;") %>)' data-zh="编辑" data-en="Edit">编辑</button>
+            <form method="POST" action="/admin/travel/delete/<%= r.id %>" style="display:inline" onsubmit="return confirm('确定删除？')">
+              <button type="submit" class="btn btn-sm btn-danger" data-zh="删除" data-en="Delete">删除</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="travelModal" style="display:none">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header"><h3 id="modalTitle" data-zh="添加出行" data-en="Add Trip">添加出行</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <form method="POST" action="/admin/travel/save" class="admin-form" id="travelForm">
+      <input type="hidden" name="id" id="f_id">
+      <input type="hidden" name="segments" id="f_segments">
+      <input type="hidden" name="full_route" id="f_fullRoute">
+
+      <datalist id="cityList">
+        <option value="宁海"><option value="成都"><option value="上海"><option value="北京"><option value="深圳"><option value="杭州"><option value="广州">
+        <option value="南京"><option value="武汉"><option value="重庆"><option value="西安"><option value="长沙"><option value="郑州"><option value="济南">
+        <option value="青岛"><option value="厦门"><option value="福州"><option value="合肥"><option value="宁波"><option value="台州"><option value="温州">
+        <option value="南昌"><option value="昆明"><option value="贵阳"><option value="南宁"><option value="哈尔滨"><option value="沈阳"><option value="大连">
+        <option value="天津"><option value="石家庄"><option value="太原"><option value="兰州"><option value="亳州"><option value="西昌"><option value="汉中">
+        <option value="凉山"><option value="洛阳"><option value="苏州"><option value="无锡"><option value="绍兴"><option value="嘉兴"><option value="金华">
+        <option value="宜昌"><option value="襄阳"><option value="城固县"><option value="陕西城固县">
+      </datalist>
+      <datalist id="vehList">
+        <% if (typeof vehicles !== 'undefined' && vehicles) { vehicles.forEach(function(v){ %><option value="<%= v %>"><% }); } %>
+      </datalist>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:1"><label data-zh="出发地" data-en="Origin">出发地</label><input type="text" name="departure" id="f_dep" class="form-input" value="宁海" list="cityList"></div>
+        <div class="form-group" style="flex:1"><label data-zh="目的地 *" data-en="Destination *">目的地 *</label><input type="text" name="destination" id="f_dest" class="form-input" required list="cityList"></div>
+      </div>
+
+      <!-- 车次查询 -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <label style="font-size:0.82rem;font-weight:600;color:var(--text-secondary)" data-zh="🔍 车次查询" data-en="🔍 Train Query">🔍 车次查询</label>
+          <input type="text" id="trainQuery" placeholder="车次号" data-zh-placeholder="车次号" data-en-placeholder="Train #" style="width:80px;padding:5px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem">
+          <input type="text" id="trainFrom" placeholder="起点站" data-zh-placeholder="起点站" data-en-placeholder="Origin" list="cityList" style="width:90px;padding:5px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem">
+          <span style="color:var(--text-muted)">→</span>
+          <input type="text" id="trainTo" placeholder="终点站" data-zh-placeholder="终点站" data-en-placeholder="Destination" list="cityList" style="width:90px;padding:5px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem">
+          <button type="button" class="btn btn-sm btn-primary" onclick="searchTrain()">查询</button>
+        </div>
+        <div id="trainResult" style="font-size:0.8rem;color:var(--text-muted)" data-zh="输入车次号（可选起点/终点），自动获取经停站" data-en="Enter train number (optionally with origin/destination) to auto-fill stops">输入车次号（可选起点/终点），自动获取经停站</div>
+      </div>
+
+      <!-- 多段行程 -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="font-size:0.82rem;font-weight:600;color:var(--text-secondary)"><span data-zh="🚄 途经站（选填）" data-en="🚄 Stops (Optional)">🚄 途经站（选填）</span></label>
+          <button type="button" class="btn btn-sm btn-outline" onclick="addSegment()" data-zh="＋ 添加经停站" data-en="＋ Add Stop">＋ 添加经停站</button>
+        </div>
+        <div id="segmentsContainer"></div>
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-top:4px" data-zh="添加列车途经的各个站点，方便在地图上展示完整路线" data-en="Add intermediate stops to display full route on the map">添加列车途经的各个站点，方便在地图上展示完整路线</p>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group"><label data-zh="开始日期 *" data-en="Start Date *">开始日期 *</label><input type="date" name="start_date" id="f_start" class="form-input" required></div>
+        <div class="form-group"><label data-zh="结束日期" data-en="End Date">结束日期</label><input type="date" name="end_date" id="f_end" class="form-input"></div>
+      </div>
+      <div class="form-group"><label data-zh="目的/事由" data-en="Purpose">目的/事由</label><input type="text" name="purpose" id="f_purp" class="form-input"></div>
+      <div class="form-group"><label data-zh="备注" data-en="Notes">备注</label><textarea name="notes" id="f_notes" class="form-input form-textarea" rows="2"></textarea></div>
+      <div class="form-actions"><button type="button" class="btn btn-outline" onclick="closeModal()" data-zh="取消" data-en="Cancel">取消</button><button type="submit" class="btn btn-primary">💾 <span data-zh="保存" data-en="Save">保存</span></button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+segmentsData = [];
+
+function showForm() {
+  document.getElementById('modalTitle').textContent = '添加出行';
+  ['f_id','f_dest','f_start','f_end','f_purp','f_notes'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('f_dep').value = '宁海';
+  segmentsData = [];
+  renderSegments();
+  document.getElementById('travelModal').style.display = 'flex';
+}
+
+function addSegment() {
+  segmentsData.push({ from: '', to: '', vehicle: '', transport: 'train', depart_time: '', arrive_time: '' });
+  renderSegments();
+}
+
+function removeSegment(idx) {
+  segmentsData.splice(idx, 1);
+  renderSegments();
+}
+
+function renderSegments() {
+  var container = document.getElementById('segmentsContainer');
+  if (segmentsData.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:8px;color:var(--text-muted);font-size:0.8rem">暂无换乘段，直达行程</div>';
+    return;
+  }
+  var html = '';
+  segmentsData.forEach(function(s, i) {
+    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+    html += '<span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary)">🚄 第' + (i+1) + '段</span>';
+    html += '<button type="button" class="btn btn-sm btn-danger" onclick="removeSegment(' + i + ')">✕ 删除</button>';
+    html += '</div>';
+    // 出发/到达
+    html += '<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-bottom:8px">';
+    html += '<input type="text" placeholder="出发城市" value="' + s.from + '" onchange="segmentsData[' + i + '].from=this.value" list="cityList" class="form-input" style="font-size:0.85rem;padding:7px 10px;text-align:center">';
+    html += '<span style="color:var(--text-muted);font-size:0.8rem">→</span>';
+    html += '<input type="text" placeholder="到达城市" value="' + s.to + '" onchange="segmentsData[' + i + '].to=this.value" list="cityList" class="form-input" style="font-size:0.85rem;padding:7px 10px;text-align:center">';
+    html += '</div>';
+    // 交通+车次+时间
+    html += '<div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:6px">';
+    html += '<select onchange="segmentsData[' + i + '].transport=this.value" class="form-input" style="font-size:0.82rem;padding:7px 6px"><option value="train"' + (s.transport==='train'?' selected':'') + '>🚄 高铁</option><option value="plane"' + (s.transport==='plane'?' selected':'') + '>✈️ 飞机</option><option value="car"' + (s.transport==='car'?' selected':'') + '>🚗 其他</option></select>';
+    html += '<input type="text" placeholder="车次号（如 G820）" value="' + s.vehicle + '" onchange="segmentsData[' + i + '].vehicle=this.value" list="vehList" class="form-input" style="font-size:0.85rem;padding:7px 10px;font-weight:600">';
+    html += '<div style="display:flex;gap:4px"><input type="time" value="' + s.depart_time + '" onchange="segmentsData[' + i + '].depart_time=this.value" class="form-input" style="font-size:0.8rem;padding:7px 6px;flex:1"><input type="time" value="' + s.arrive_time + '" onchange="segmentsData[' + i + '].arrive_time=this.value" class="form-input" style="font-size:0.8rem;padding:7px 6px;flex:1"></div>';
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+// 保存时收集 segments 数据
+document.getElementById('travelForm').addEventListener('submit', function() {
+  document.getElementById('f_segments').value = JSON.stringify(segmentsData);
+});
+
+// 查询车次
+function searchTrain() {
+  var code = document.getElementById('trainQuery').value.trim();
+  if (!code) return;
+  var from = document.getElementById('trainFrom').value.trim();
+  var to = document.getElementById('trainTo').value.trim();
+  var resultDiv = document.getElementById('trainResult');
+  resultDiv.textContent = '查询中...';
+  var url = '/api/train/' + encodeURIComponent(code);
+  var params = [];
+  if (from) params.push('from=' + encodeURIComponent(from));
+  if (to) params.push('to=' + encodeURIComponent(to));
+  if (params.length) url += '?' + params.join('&');
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.found) { resultDiv.innerHTML = '<span style="color:#f87171">❌ 未找到车次信息，请手动添加经停站</span>'; return; }
+      var t = data.train;
+      // 用经停站填充 segments
+      segmentsData = [];
+      for (var i = 0; i < t.stops.length - 1; i++) {
+        var s = t.stops[i], next = t.stops[i + 1];
+        segmentsData.push({
+          from: s.station, to: next.station,
+          vehicle: t.name,
+          transport: 'train',
+          depart_time: s.depart,
+          arrive_time: next.arrive
+        });
+      }
+      renderSegments();
+      var stopCount = t.stops.length;
+      resultDiv.innerHTML = '<span style="color:#34d399">✅ 已找到 ' + t.name + ' (' + t.from + '→' + t.to + ')，' + stopCount + ' 站已填充</span>';
+    })
+    .catch(function() {
+      resultDiv.innerHTML = '<span style="color:#f87171">❌ 查询失败</span>';
+    });
+}
+
+function editRow(r) {
+  document.getElementById('modalTitle').textContent = '编辑出行';
+  document.getElementById('f_id').value = r.id;
+  document.getElementById('f_dep').value = r.departure || '宁海';
+  document.getElementById('f_dest').value = r.destination;
+  document.getElementById('f_start').value = r.start_date;
+  document.getElementById('f_end').value = r.end_date || '';
+  document.getElementById('f_purp').value = r.purpose || '';
+  document.getElementById('f_notes').value = r.notes || '';
+
+  // 解析已有 segments
+  try { segmentsData = JSON.parse(r.segments) || []; } catch(e) { segmentsData = []; }
+  renderSegments();
+
+  document.getElementById('travelModal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('travelModal').style.display = 'none'; }
+</script>
+
+<%- include('../partials/admin-footer') %>

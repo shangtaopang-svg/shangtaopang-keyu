@@ -1,0 +1,9 @@
+node_modules/
+data.db
+.env
+*.log
+public/uploads/*
+public/uploads/albums/*
+public/music/*
+111.JPG
+111_edited.jpg

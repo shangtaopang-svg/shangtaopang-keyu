@@ -1,0 +1,53 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-toolbar">
+  <h2 class="admin-page-title">🎬 <span data-zh="视频管理" data-en="Video Management">视频管理</span></h2>
+  <a href="/admin/videos/new" class="btn btn-primary">＋ <span data-zh="添加视频" data-en="Add Video">添加视频</span></a>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th data-zh="ID" data-en="ID">ID</th>
+          <th data-zh="标题" data-en="Title">标题</th>
+          <th data-zh="分类" data-en="Category">分类</th>
+          <th data-zh="AI模型" data-en="AI Model">AI模型</th>
+          <th data-zh="平台" data-en="Platform">平台</th>
+          <th data-zh="播放量" data-en="Views">播放量</th>
+          <th data-zh="状态" data-en="Status">状态</th>
+          <th data-zh="添加时间" data-en="Added">添加时间</th>
+          <th data-zh="操作" data-en="Actions">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (videos.length === 0) { %>
+          <tr><td colspan="9" class="text-center" data-zh="还没有视频，点击右上角添加第一个！" data-en="No videos yet. Click the top-right button to add one!">还没有视频，点击右上角添加第一个！</td></tr>
+        <% } else { %>
+          <% videos.forEach(v => { %>
+            <tr>
+              <td><%= v.id %></td>
+              <td class="td-title"><%= v.title %></td>
+              <td><%= v.category_name || '-' %></td>
+              <td><%= v.model_name || '-' %></td>
+              <td><%= v.platform || '-' %></td>
+              <td><%= v.views || 0 %></td>
+              <td><span class="status-badge <%= v.status %>" data-zh="<%= v.status === 'published' ? '已发布' : '草稿' %>" data-en="<%= v.status === 'published' ? 'published' : 'draft' %>"><%= v.status === 'published' ? '已发布' : '草稿' %></span></td>
+              <td><%= new Date(v.created_at).toLocaleDateString('zh-CN') %></td>
+              <td class="td-actions">
+                <a href="/video/<%= v.id %>" class="btn btn-sm btn-outline" target="_blank" data-zh="查看" data-en="View">查看</a>
+                <a href="/admin/videos/edit/<%= v.id %>" class="btn btn-sm btn-edit" data-zh="编辑" data-en="Edit">编辑</a>
+                <form method="POST" action="/admin/videos/delete/<%= v.id %>" style="display:inline" onsubmit="return confirm('确定删除该视频？')">
+                  <button type="submit" class="btn btn-sm btn-danger" data-zh="删除" data-en="Delete">删除</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/admin-footer') %>

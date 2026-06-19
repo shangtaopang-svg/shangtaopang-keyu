@@ -1,0 +1,51 @@
+<%- include('../partials/admin-header') %>
+
+<% if (typeof saved !== 'undefined' && saved) { %><div class="alert alert-success" data-zh="成功保存 <%= saved %> 个视频" data-en="Successfully saved <%= saved %> videos">成功保存 <%= saved %> 个视频</div><% } %>
+<% if (typeof error !== 'undefined' && error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="admin-toolbar">
+  <h2 class="admin-page-title">👤<span data-zh="博主管理" data-en="Blogger Management">博主管理</span></h2>
+  <a href="/admin/bloggers/new" class="btn btn-primary">＋ <span data-zh="添加博主（含自动抓取）" data-en="Add Blogger (with Auto-fetch)">添加博主（含自动抓取）</span></a>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr><th data-zh="头像" data-en="Avatar">头像</th><th data-zh="名称" data-en="Name">名称</th><th data-zh="平台" data-en="Platform">平台</th><th data-zh="主页" data-en="Homepage">主页</th><th data-zh="视频数" data-en="Videos">视频数</th><th data-zh="状态" data-en="Status">状态</th><th data-zh="最后同步" data-en="Last Sync">最后同步</th><th data-zh="操作" data-en="Actions">操作</th></tr>
+      </thead>
+      <tbody>
+        <% if (bloggers.length === 0) { %>
+          <tr><td colspan="8" class="text-center" data-zh="还没有博主，点击右上角添加" data-en="No bloggers yet. Click top-right to add">还没有博主，点击右上角添加</td></tr>
+        <% } else { %>
+          <% bloggers.forEach(b => { %>
+            <tr>
+              <td>
+                <% if (b.avatar) { %>
+                  <img src="<%= b.avatar %>" style="width:36px;height:36px;border-radius:50%;object-fit:cover">
+                <% } else { %>
+                  <span style="font-size:1.4rem">👤</span>
+                <% } %>
+              </td>
+              <td><strong><%= b.name %></strong></td>
+              <td><%= b.platform || '-' %></td>
+              <td><% if (b.homepage_url) { %><a href="<%= b.homepage_url %>" target="_blank" class="btn btn-sm btn-outline" data-zh="访问" data-en="Visit">访问</a><% } else { %>-<% } %></td>
+              <td><%= b.video_count || 0 %></td>
+              <td><span class="status-badge <%= b.status %>" data-zh="<%= b.status === 'active' ? '启用' : '禁用' %>" data-en="<%= b.status === 'active' ? 'Active' : 'Inactive' %>"><%= b.status === 'active' ? '启用' : '禁用' %></span></td>
+              <td data-zh="<%= b.last_sync_at ? new Date(b.last_sync_at).toLocaleDateString('zh-CN') : '从未' %>" data-en="<%= b.last_sync_at ? new Date(b.last_sync_at).toLocaleDateString('en-US') : 'Never' %>"><%= b.last_sync_at ? new Date(b.last_sync_at).toLocaleDateString('zh-CN') : '从未' %></td>
+              <td class="td-actions">
+                <a href="/blogger/<%= b.slug %>" class="btn btn-sm btn-outline" target="_blank" data-zh="查看" data-en="View">查看</a>
+                <a href="/admin/bloggers/edit/<%= b.id %>" class="btn btn-sm btn-edit" data-zh="编辑" data-en="Edit">编辑</a>
+                <form method="POST" action="/admin/bloggers/delete/<%= b.id %>" style="display:inline" onsubmit="return confirm('删除博主不会删除其视频，确认？')">
+                  <button type="submit" class="btn btn-sm btn-danger" data-zh="删除" data-en="Delete">删除</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/admin-footer') %>

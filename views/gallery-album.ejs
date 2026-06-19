@@ -1,0 +1,73 @@
+<%- include('partials/header') %>
+
+<section class="page-header">
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div>
+        <h1 class="page-title"><%= album.title %></h1>
+        <p class="page-desc" data-zh="<%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> 张照片" data-en="<%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> photos"><%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> 张照片</p>
+      </div>
+      <a href="/gallery" class="btn btn-outline btn-sm" data-zh="← 返回影集" data-en="← Back to Gallery">← 返回影集</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <% if (photos.length === 0) { %>
+      <div class="empty-state">
+        <span class="empty-icon">📸</span>
+        <h3 data-zh="暂无照片" data-en="No photos yet">暂无照片</h3>
+      </div>
+    <% } else { %>
+      <div class="photo-grid" id="photoGrid">
+        <% photos.forEach(p => { %>
+          <div class="photo-item" onclick="openViewer(this)">
+            <img src="<%= p.filename %>" alt="<%= p.original_name || '' %>" loading="lazy">
+            <div class="photo-desc">
+              <% if (p.description) { %><span><%= p.description %></span><% } %>
+              <% if (p.date_taken) { %><span style="font-size:0.7rem;opacity:0.7">📅 <%= p.date_taken %></span><% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<!-- 图片查看器 -->
+<div id="photoViewer" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);cursor:zoom-out" onclick="this.style.display='none'">
+  <img id="viewerImg" style="max-width:90vw;max-height:90vh;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);object-fit:contain;border-radius:8px">
+</div>
+
+<script>
+function openViewer(el) {
+  const img = el.querySelector('img');
+  if (!img) return;
+  document.getElementById('viewerImg').src = img.src;
+  document.getElementById('photoViewer').style.display = 'block';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.getElementById('photoViewer').style.display = 'none';
+});
+</script>
+
+<style>
+.photo-grid { column-count: 3; column-gap: 12px; }
+.photo-item {
+  break-inside: avoid; margin-bottom: 12px; cursor: pointer;
+  border-radius: 10px; overflow: hidden; position: relative;
+  transition: var(--transition);
+}
+.photo-item:hover { transform: scale(1.01); }
+.photo-item img { width: 100%; display: block; border-radius: 10px; }
+.photo-desc {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 8px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  color: #fff; font-size: 0.78rem; opacity: 0; transition: var(--transition);
+}
+.photo-item:hover .photo-desc { opacity: 1; }
+@media (max-width: 768px) { .photo-grid { column-count: 2; column-gap: 8px; } .photo-item { margin-bottom: 8px; } }
+</style>
+
+<%- include('partials/footer') %>

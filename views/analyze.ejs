@@ -1,0 +1,463 @@
+<%- include('partials/header') %>
+
+<section class="al-hero">
+  <div class="container">
+    <div class="al-hero-inner">
+      <div>
+        <div class="al-breadcrumb"><a href="/" data-zh="首页" data-en="Home">首页</a> / <a href="/study" data-zh="学习总结" data-en="Study Summary">学习总结</a> / <span data-zh="视频分析" data-en="Video Analysis">视频分析</span></div>
+        <h1 class="al-title"><%= video.title %></h1>
+        <div class="al-meta">
+          <span data-zh="<%= video.category_icon || '📂' %> <%= video.category_name || '未分类' %>" data-en="<%= video.category_icon || '📂' %> <%= video.category_name || 'Uncategorized' %>"><%= video.category_icon || '📂' %> <%= video.category_name || '未分类' %></span>
+          <% if (video.model_name) { %><span>🤖 <%= video.model_name %></span><% } %>
+          <span data-zh="📺 <%= video.platform || '视频' %>" data-en="📺 <%= video.platform || 'Video' %>">📺 <%= video.platform || '视频' %></span>
+        </div>
+      </div>
+      <div class="al-actions">
+        <a href="/video/<%= video.id %>" class="btn btn-outline btn-sm" data-zh="🎬 看视频" data-en="🎬 Watch Video">🎬 看视频</a>
+        <a href="/study/new?video_id=<%= video.id %>" class="btn btn-outline btn-sm" data-zh="📝 写笔记" data-en="📝 Write Notes">📝 写笔记</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="al-body">
+  <div class="al-grid">
+      <!-- ===== 左侧：分析面板（独立滑动） ===== -->
+      <div class="al-left">
+
+        <!-- 🧠 思维导图 -->
+        <div class="al-card">
+          <div class="alc-header" onclick="alToggle(this)">
+            <span class="alc-icon">🧠</span>
+            <span class="alc-title" data-zh="思维导图" data-en="Mind Map">思维导图</span>
+            <span class="alc-toggle">▼</span>
+          </div>
+          <div class="alc-body">
+            <% if (analysis && analysis.mindmap) { %>
+              <div class="mm-canvas-toolbar">
+                <button class="mm-zb" onclick="mmZoom(0.1)">🔍+</button>
+                <button class="mm-zb" onclick="mmZoom(-0.1)">🔍−</button>
+                <button class="mm-zb" onclick="mmReset()" data-zh="⟲ 重置" data-en="⟲ Reset">⟲ 重置</button>
+                <span class="mm-zp" id="mmZoomPct">100%</span>
+              </div>
+              <div class="mm-canvas" id="mmCanvas">
+                <div class="mm-canvas-inner" id="mmCanvasInner">
+                  <% function renderMM(node, depth) { %>
+                    <div class="mm-node" style="--d:<%= depth %>">
+                      <div class="mm-row" onclick="<%= (!node.leaf && node.children) ? 'mmToggle(this)' : '' %>">
+                        <% if (!node.leaf && node.children) { %><span class="mm-arrow expanded">▼</span>
+                        <% } else { %><span class="mm-bullet"></span><% } %>
+                        <span class="mm-text" ondblclick="mmEdit(this)"><%= node.name %></span>
+                      </div>
+                      <% if (node.children && node.children.length > 0) { %>
+                        <div class="mm-children">
+                          <% node.children.forEach(c => { %><% renderMM(c, depth + 1); %><% }) %>
+                        </div>
+                      <% } %>
+                    </div>
+                  <% } %>
+                  <% renderMM(analysis.mindmap, 0); %>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- 📖 文字大纲 -->
+        <div class="al-card">
+          <div class="alc-header" onclick="alToggle(this)">
+            <span class="alc-icon">📖</span>
+            <span class="alc-title" data-zh="文字大纲" data-en="Outline">文字大纲</span>
+            <span class="alc-toggle">▼</span>
+          </div>
+          <div class="alc-body">
+            <% if (analysis && analysis.outline) { %>
+              <div class="al-outline">
+                <% analysis.outline.forEach(item => { %>
+                  <div class="ao-item" style="padding-left:<%= (item.level - 1) * 20 %>px;font-size:<%= item.level === 1 ? '0.95rem' : item.level === 2 ? '0.88rem' : '0.82rem' %>;font-weight:<%= item.level <= 2 ? '600' : '400' %>;color:<%= item.level === 1 ? 'var(--primary-light)' : item.level === 2 ? 'var(--text)' : 'var(--text-secondary)' %>">
+                    <span class="ao-bullet" style="width:<%= 10 - item.level %>px;height:<%= 10 - item.level %>px;background:<%= item.level === 1 ? 'var(--primary)' : item.level === 2 ? 'var(--text)' : 'var(--text-muted)' %>"></span>
+                    <%= item.text %>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- ⚡ 精华速览 -->
+        <div class="al-card">
+          <div class="alc-header" onclick="alToggle(this)">
+            <span class="alc-icon">⚡</span>
+            <span class="alc-title" data-zh="精华速览" data-en="Highlights">精华速览</span>
+            <span class="alc-toggle">▼</span>
+          </div>
+          <div class="alc-body">
+            <% if (analysis && analysis.highlights) { %>
+              <div class="al-hl-summary"><%= analysis.highlights.summary %></div>
+              <div class="al-hl-points">
+                <% (analysis.highlights.keyPoints || []).forEach(p => { %>
+                  <div class="al-hl-point"><%= p.icon %> <span><%= p.text %></span></div>
+                <% }) %>
+              </div>
+              <div class="al-hl-qa">
+                <div class="al-hl-subtitle" data-zh="❓ QA 问答" data-en="❓ Q&A">❓ QA 问答</div>
+                <% (analysis.highlights.qa || []).forEach(qa => { %>
+                  <div class="al-qa-item">
+                    <div class="al-qa-q"><span>Q:</span> <%= qa.q %></div>
+                    <div class="al-qa-a"><span>A:</span> <%= qa.a %></div>
+                  </div>
+                <% }) %>
+              </div>
+              <div class="al-hl-terms">
+                <div class="al-hl-subtitle" data-zh="📚 术语" data-en="📚 Glossary">📚 术语</div>
+                <div class="al-terms">
+                  <% (analysis.highlights.terms || []).forEach(t => { %>
+                    <div class="al-term"><strong><%= t.term %></strong><span><%= t.def %></span></div>
+                  <% }) %>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 右侧：学习工具（独立滑动） ===== -->
+      <div class="al-right">
+
+        <!-- 📚 AI学习 -->
+        <div class="al-card">
+          <div class="alc-header" onclick="alToggle(this)">
+            <span class="alc-icon">📚</span>
+            <span class="alc-title" data-zh="AI 学习" data-en="AI Learning">AI 学习</span>
+            <span class="alc-toggle">▼</span>
+          </div>
+          <div class="alc-body">
+            <% if (analysis && analysis.learning) { %>
+              <div class="al-learn-summary"><%= analysis.learning.summary %></div>
+
+              <div class="al-subtitle" data-zh="🗺️ 学习路径" data-en="🗺️ Learning Path">🗺️ 学习路径</div>
+              <div class="al-path">
+                <% (analysis.learning.learningPath || []).forEach(step => { %>
+                  <div class="al-path-step">
+                    <span class="al-path-num"><%= step.step %></span>
+                    <div class="al-path-info">
+                      <strong><%= step.title %></strong>
+                      <span><%= step.description %></span>
+                      <small><%= step.time || '' %></small>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+
+              <div class="al-subtitle" data-zh="📝 自我测验" data-en="📝 Self Quiz">📝 自我测验</div>
+              <div class="al-quiz">
+                <% (analysis.learning.quiz || []).forEach((q, qi) => { %>
+                  <div class="al-quiz-item">
+                    <div class="al-quiz-q"><%= qi + 1 %>. <%= q.q %></div>
+                    <% if (q.options) { %>
+                      <div class="al-quiz-opts">
+                        <% q.options.forEach((o, oi) => { %>
+                          <label class="al-quiz-opt" onclick="alCheck(<%= qi %>, <%= oi %>, <%= q.answer %>)">
+                            <input type="radio" name="q<%= qi %>" value="<%= oi %>"> <%= o %>
+                          </label>
+                        <% }) %>
+                      </div>
+                      <div class="al-quiz-result" id="alqr<%= qi %>"></div>
+                    <% } else { %>
+                      <textarea class="al-quiz-input" rows="2" placeholder="写下你的思考..." data-zh-placeholder="写下你的思考..." data-en-placeholder="Write your thoughts..."></textarea>
+                    <% } %>
+                    <div class="al-quiz-tip">💡 <%= q.explain || '' %></div>
+                  </div>
+                <% }) %>
+              </div>
+
+              <% if (analysis.learning.tips) { %>
+                <div class="al-tips" data-zh="💡 <strong>学习建议：</strong><%= analysis.learning.tips %>" data-en="💡 <strong>Tip：</strong><%= analysis.learning.tips %>">💡 <strong>学习建议：</strong><%= analysis.learning.tips %></div>
+              <% } %>
+
+              <div class="al-subtitle" data-zh="🔗 拓展阅读" data-en="🔗 Further Reading">🔗 拓展阅读</div>
+              <div class="al-topics">
+                <% (analysis.learning.relatedTopics || []).forEach(topic => { %>
+                  <span class="al-topic"><%= topic %></span>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- 📋 模板总结 -->
+        <div class="al-card">
+          <div class="alc-header" onclick="alToggle(this)">
+            <span class="alc-icon">📋</span>
+            <span class="alc-title" data-zh="模板总结" data-en="Template">模板总结</span>
+            <span class="alc-toggle">▼</span>
+          </div>
+          <div class="alc-body">
+            <% if (analysis && analysis.template) { %>
+              <% analysis.template.sections.forEach(sec => { %>
+                <div class="al-tpl-item">
+                  <label><%= sec.label %></label>
+                  <div contenteditable="true" class="al-tpl-content"><%= sec.content %></div>
+                </div>
+              <% }) %>
+              <button class="btn btn-sm btn-edit" onclick="alSaveTemplate()" style="margin-top:10px" data-zh="💾 保存" data-en="💾 Save">💾 保存</button>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- 🎙️ AI播客 -->
+        <div class="al-card">
+          <div class="alc-header" onclick="alToggle(this)">
+            <span class="alc-icon">🎙️</span>
+            <span class="alc-title" data-zh="AI 播客" data-en="AI Podcast">AI 播客</span>
+            <span class="alc-toggle">▼</span>
+          </div>
+          <div class="alc-body">
+            <% if (analysis && analysis.podcast) { %>
+              <div class="al-podcast-hosts">
+                <% (analysis.podcast.hosts || []).forEach(h => { %>
+                  <span class="al-host"><%= h.role %>：<%= h.name %></span>
+                <% }) %>
+              </div>
+              <div class="al-podcast-script">
+                <% (analysis.podcast.script || []).forEach(line => { %>
+                  <div class="al-script-line al-script-<%= line.speaker === '小雅' ? 'a' : 'b' %>">
+                    <span class="al-speaker"><%= line.speaker %></span>
+                    <span class="al-speech"><%= line.text %></span>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentAnalysis = <%- JSON.stringify(analysis) %>;
+let noteId = <%= note ? note.id : 'null' %>;
+let videoId = <%= video.id %>;
+
+// 折叠展开
+function alToggle(el) {
+  const body = el.nextElementSibling;
+  const tog = el.querySelector('.alc-toggle');
+  if (body) {
+    body.classList.toggle('collapsed');
+    tog.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+  }
+}
+
+// 思维导图
+let mmScale = 1;
+function mmToggle(el) {
+  const ch = el.parentElement.querySelector('.mm-children');
+  const ar = el.querySelector('.mm-arrow');
+  if (ch) { ch.classList.toggle('collapsed'); if (ar) ar.classList.toggle('expanded'); }
+}
+function mmEdit(el) {
+  if (el.contentEditable === 'true') return;
+  const old = el.textContent;
+  el.contentEditable = 'true'; el.focus();
+  el.onblur = () => { el.contentEditable = 'false'; el.textContent = el.textContent.trim() || old; };
+  el.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } };
+}
+function mmZoom(d) {
+  mmScale = Math.max(0.4, Math.min(2, mmScale + d));
+  document.getElementById('mmCanvasInner').style.transform = 'scale(' + mmScale + ')';
+  document.getElementById('mmZoomPct').textContent = Math.round(mmScale * 100) + '%';
+}
+function mmReset() {
+  mmScale = 1;
+  const el = document.getElementById('mmCanvasInner');
+  if (el) { el.style.transform = 'scale(1)'; el.style.transformOrigin = 'top left'; }
+  document.getElementById('mmZoomPct').textContent = '100%';
+  const canvas = document.getElementById('mmCanvas');
+  if (canvas) canvas.scrollTo(0, 0);
+}
+
+// 测验
+function alCheck(qi, sel, ans) {
+  const r = document.getElementById('alqr' + qi);
+  if (r) { r.textContent = sel === ans ? '✅ 正确！' : '❌ 再想想'; r.className = 'al-quiz-result ' + (sel === ans ? 'correct' : 'wrong'); r.setAttribute('data-zh', sel === ans ? '✅ 正确！' : '❌ 再想想'); r.setAttribute('data-en', sel === ans ? '✅ Correct!' : '❌ Try again'); }
+}
+
+// 保存模板
+function alSaveTemplate() {
+  document.querySelectorAll('.al-tpl-item').forEach(item => {
+    const label = item.querySelector('label')?.textContent || '';
+    const content = item.querySelector('[contenteditable]')?.textContent || '';
+    const sec = currentAnalysis.template?.sections?.find(s => s.label === label);
+    if (sec) sec.content = content;
+  });
+  fetch('/study/analyze/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ video_id: videoId, note_id: noteId, analysis_data: JSON.stringify(currentAnalysis) })
+  }).then(r => r.json()).then(d => { if (d.success) alert('✅ 保存成功'); }).catch(() => alert('❌ 失败'));
+}
+</script>
+
+<style>
+/* ===== 分析页（双栏独立滑动） ===== */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; }
+
+.al-hero {
+  padding: 14px 0 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  flex-shrink: 0;
+  position: sticky; top: 64px; z-index: 10;
+}
+.al-hero-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.al-breadcrumb { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+.al-breadcrumb a { color: var(--text-secondary) !important; }
+.al-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+.al-meta { display: flex; gap: 8px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap; }
+.al-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* 主体区域：左右独立滑动 */
+.al-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  padding: 0;
+}
+.al-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+.al-left, .al-right {
+  overflow-y: auto;
+  height: calc(100vh - 64px - 52px);
+  padding: 16px;
+}
+.al-left { border-right: 1px solid var(--border); }
+.al-right { }
+
+@media (max-width: 768px) {
+  .al-body, .al-left, .al-right { height: auto; overflow: visible; }
+  .al-left { border-right: none; border-bottom: 1px solid var(--border); }
+  .al-grid { grid-template-columns: 1fr; }
+}
+.al-left::-webkit-scrollbar, .al-right::-webkit-scrollbar { width: 4px; }
+.al-left::-webkit-scrollbar-thumb, .al-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* 卡片 */
+.al-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+.alc-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; user-select: none; }
+.alc-header:hover { background: rgba(255,255,255,0.02); }
+.alc-icon { font-size: 1.2rem; }
+.alc-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
+.alc-toggle { font-size: 0.65rem; color: var(--text-muted); }
+.alc-body { padding: 0 16px 14px; }
+.alc-body.collapsed { display: none; }
+
+/* 思维导图（可滚动缩放） */
+.mm-canvas-toolbar { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.mm-zb { padding: 2px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 0.75rem; color: var(--text-secondary); }
+.mm-zb:hover { border-color: var(--primary); }
+.mm-zp { font-size: 0.72rem; color: var(--text-muted); margin-left: 4px; }
+.mm-canvas {
+  max-height: 400px; overflow: auto;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg); padding: 16px;
+  cursor: grab;
+}
+.mm-canvas:active { cursor: grabbing; }
+.mm-canvas-inner { transform-origin: top left; transition: transform 0.2s; }
+.mm-canvas::-webkit-scrollbar { width: 4px; height: 4px; }
+.mm-canvas::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.mm-canvas::-webkit-scrollbar-track { background: transparent; }
+.al-mindmap { }
+.mm-node { padding-left: calc(var(--d,0) * 20px); }
+.mm-row { display: flex; align-items: center; gap: 4px; padding: 3px 6px; border-radius: 4px; cursor: default; transition: background 0.15s; }
+.mm-row:hover { background: rgba(255,255,255,0.04); }
+.mm-arrow { font-size: 0.5rem; color: #999; width: 12px; flex-shrink: 0; cursor: pointer; transition: transform 0.15s; }
+.mm-arrow.expanded { transform: rotate(0deg); }
+.mm-bullet { width: 5px; height: 5px; border-radius: 50%; background: #888; flex-shrink: 0; margin: 0 3.5px; }
+.mm-text { font-size: 0.82rem; color: var(--text); padding: 1px 4px; border-radius: 3px; cursor: pointer; flex: 1; }
+.mm-text:hover { background: rgba(255,255,255,0.05); }
+.mm-text[contenteditable="true"] { background: var(--bg); border: 1px solid var(--primary); outline: none; }
+.mm-children { margin: 1px 0; }
+.mm-children.collapsed { display: none; }
+
+/* 大纲 */
+.al-outline { padding: 4px 0; }
+.ao-item { display: flex; align-items: center; gap: 8px; padding: 3px 0; line-height: 1.5; }
+.ao-bullet { display: inline-block; border-radius: 50%; flex-shrink: 0; }
+
+/* 精华速览 */
+.al-hl-summary { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; padding: 10px; background: var(--bg); border-radius: 8px; }
+.al-hl-points { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.al-hl-point { display: flex; gap: 6px; font-size: 0.82rem; color: var(--text-secondary); padding: 2px 0; }
+.al-hl-subtitle { font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; padding-top: 4px; }
+.al-qa-item { padding: 8px 10px; background: var(--bg); border-radius: 6px; margin-bottom: 6px; }
+.al-qa-q { font-weight: 500; font-size: 0.82rem; margin-bottom: 2px; }
+.al-qa-q span { color: var(--primary-light); margin-right: 4px; }
+.al-qa-a { font-size: 0.8rem; color: var(--text-secondary); }
+.al-qa-a span { color: #34d399; margin-right: 4px; }
+.al-terms { display: flex; flex-direction: column; gap: 4px; }
+.al-term { display: flex; gap: 8px; font-size: 0.8rem; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.al-term strong { color: var(--text); min-width: 80px; }
+.al-term span { color: var(--text-muted); }
+
+/* 右侧：学习 */
+.al-learn-summary { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; padding: 10px; background: var(--bg); border-radius: 8px; }
+.al-subtitle { font-size: 0.85rem; font-weight: 600; margin: 12px 0 8px; }
+
+.al-path { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+.al-path-step { display: flex; gap: 10px; padding: 8px 10px; background: var(--bg); border-radius: 6px; align-items: flex-start; }
+.al-path-num { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+.al-path-info { flex: 1; }
+.al-path-info strong { display: block; font-size: 0.85rem; }
+.al-path-info span { font-size: 0.78rem; color: var(--text-muted); }
+.al-path-info small { font-size: 0.7rem; color: var(--text-muted); }
+
+.al-quiz { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+.al-quiz-item { padding: 10px; background: var(--bg); border-radius: 6px; }
+.al-quiz-q { font-weight: 500; font-size: 0.85rem; margin-bottom: 6px; }
+.al-quiz-opts { display: flex; flex-direction: column; gap: 3px; }
+.al-quiz-opt { display: block; padding: 4px 8px; cursor: pointer; border-radius: 4px; font-size: 0.82rem; }
+.al-quiz-opt:hover { background: rgba(99,102,241,0.08); }
+.al-quiz-opt input { accent-color: var(--primary); }
+.al-quiz-result { margin-top: 4px; font-size: 0.8rem; font-weight: 500; }
+.al-quiz-result.correct { color: #34d399; }
+.al-quiz-result.wrong { color: #f87171; }
+.al-quiz-input { width: 100%; padding: 6px 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.8rem; font-family: inherit; resize: vertical; }
+.al-quiz-tip { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+.al-tips { padding: 8px 10px; background: rgba(99,102,241,0.08); border-radius: 6px; font-size: 0.82rem; color: var(--text-secondary); margin: 8px 0; }
+.al-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.al-topic { padding: 3px 10px; border: 1px solid var(--border); border-radius: 12px; font-size: 0.78rem; color: var(--text-muted); }
+
+/* 模板 */
+.al-tpl-item { padding: 8px 10px; background: var(--bg); border-radius: 6px; margin-bottom: 6px; }
+.al-tpl-item label { font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 2px; }
+.al-tpl-content { font-size: 0.82rem; color: var(--text-secondary); padding: 4px 6px; border-radius: 4px; line-height: 1.5; }
+.al-tpl-content:focus { background: var(--bg-card); outline: 1px solid var(--primary); }
+
+/* 播客 */
+.al-podcast-hosts { display: flex; gap: 8px; margin-bottom: 10px; }
+.al-host { padding: 2px 10px; background: var(--bg); border-radius: 12px; font-size: 0.78rem; color: var(--text-muted); }
+.al-podcast-script { display: flex; flex-direction: column; gap: 6px; }
+.al-script-line { display: flex; gap: 8px; padding: 6px 10px; border-radius: 6px; max-width: 85%; font-size: 0.82rem; }
+.al-script-a { align-self: flex-start; background: rgba(99,102,241,0.06); }
+.al-script-b { align-self: flex-end; background: rgba(16,185,129,0.06); flex-direction: row-reverse; }
+.al-speaker { font-weight: 600; font-size: 0.75rem; color: var(--primary-light); white-space: nowrap; }
+.al-script-b .al-speaker { color: #34d399; }
+.al-speech { color: var(--text-secondary); line-height: 1.5; }
+
+@media (max-width: 768px) {
+  .al-grid { grid-template-columns: 1fr; }
+  .al-script-line { max-width: 100%; }
+}
+</style>
+
+<%- include('partials/footer') %>

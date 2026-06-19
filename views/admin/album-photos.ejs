@@ -1,0 +1,64 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-toolbar">
+  <h2 class="admin-page-title">📸 <%= album.title %> — <span data-zh="照片管理" data-en="Photo Management">照片管理</span></h2>
+  <a href="/admin/albums" class="btn btn-outline btn-sm" data-zh="← 返回" data-en="← Back">← 返回</a>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead><tr><th data-zh="缩略图" data-en="Thumbnail">缩略图</th><th data-zh="文件名" data-en="File Name">文件名</th><th data-zh="描述/备注" data-en="Description/Notes">描述/备注</th><th data-zh="拍摄日期" data-en="Date Taken">拍摄日期</th><th data-zh="操作" data-en="Actions">操作</th></tr></thead>
+      <tbody>
+        <% if (photos.length === 0) { %><tr><td colspan="5" class="text-center" data-zh="暂无照片" data-en="No photos yet">暂无照片</td></tr><% } %>
+        <% photos.forEach(p => { %>
+        <tr>
+          <td><a href="<%= p.filename %>" target="_blank"><img src="<%= p.filename %>" style="width:60px;height:45px;object-fit:cover;border-radius:4px"></a></td>
+          <td style="font-size:0.82rem"><%= p.original_name || p.filename.split('/').pop() %></td>
+          <td><%= p.description || '-' %></td>
+          <td><%= p.date_taken || '-' %></td>
+          <td class="td-actions">
+            <button class="btn btn-sm btn-edit" data-zh="编辑" data-en="Edit" onclick='editPhoto(<%= JSON.stringify(p).replace(/\\/g,"\\\\").replace(/'/g,"\\'") %>)'>编辑</button>
+            <form method="POST" action="/admin/albums/photo/delete/<%= p.id %>" style="display:inline" onsubmit="return confirm('确定删除？')">
+              <button type="submit" class="btn btn-sm btn-danger" data-zh="删除" data-en="Delete">删除</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="modal-overlay" id="editModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><h3 data-zh="编辑照片信息" data-en="Edit Photo Info">编辑照片信息</h3><button class="modal-close" onclick="closeEdit()">×</button></div>
+    <form method="POST" action="" id="editPhotoForm" class="admin-form">
+      <div class="form-group">
+        <label data-zh="描述/备注" data-en="Description/Notes">描述/备注</label>
+        <input type="text" name="description" id="ep_desc" class="form-input" placeholder="如：2026年春节聚餐" data-zh-placeholder="如：2026年春节聚餐" data-en-placeholder="e.g. Chinese New Year dinner 2026">
+      </div>
+      <div class="form-group">
+        <label data-zh="拍摄日期" data-en="Date Taken">拍摄日期</label>
+        <input type="date" name="date_taken" id="ep_date" class="form-input">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" data-zh="取消" data-en="Cancel" onclick="closeEdit()">取消</button>
+        <button type="submit" class="btn btn-primary">💾 <span data-zh="保存" data-en="Save">保存</span></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function editPhoto(p) {
+  document.getElementById('ep_desc').value = p.description || '';
+  document.getElementById('ep_date').value = p.date_taken || '';
+  document.getElementById('editPhotoForm').action = '/admin/albums/photo/edit/' + p.id;
+  document.getElementById('editModal').style.display = 'flex';
+}
+function closeEdit() { document.getElementById('editModal').style.display = 'none'; }
+</script>
+
+<%- include('../partials/admin-footer') %>

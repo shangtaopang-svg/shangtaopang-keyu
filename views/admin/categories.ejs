@@ -1,0 +1,101 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-toolbar">
+  <h2 class="admin-page-title">📂 <span data-zh="分类管理" data-en="Category Management">分类管理</span></h2>
+  <button class="btn btn-primary" onclick="showAddForm()" data-zh="添加分类" data-en="Add Category">＋ 添加分类</button>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr><th data-zh="排序" data-en="Order">排序</th><th data-zh="图标" data-en="Icon">图标</th><th data-zh="名称" data-en="Name">名称</th><th data-zh="标识(slug)" data-en="Slug">标识(slug)</th><th data-zh="颜色" data-en="Color">颜色</th><th data-zh="视频数" data-en="Videos">视频数</th><th data-zh="操作" data-en="Actions">操作</th></tr>
+      </thead>
+      <tbody>
+        <% categories.forEach(c => { %>
+          <tr>
+            <td><%= c.sort_order %></td>
+            <td><span style="font-size:1.5rem"><%= c.icon %></span></td>
+            <td><%= c.name %></td>
+            <td><code><%= c.slug %></code></td>
+            <td><span class="color-dot" style="background:<%= c.color %>"></span> <%= c.color %></td>
+            <td><%= c.video_count %></td>
+            <td class="td-actions">
+              <button class="btn btn-sm btn-edit" onclick='editCategory(<%= JSON.stringify(c) %>)' data-zh="编辑" data-en="Edit">编辑</button>
+              <form method="POST" action="/admin/categories/delete/<%= c.id %>" style="display:inline" onsubmit="return confirm('确定删除？')">
+                <button type="submit" class="btn btn-sm btn-danger" data-zh="删除" data-en="Delete">删除</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 添加/编辑弹窗 -->
+<div class="modal-overlay" id="categoryModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle" data-zh="添加分类" data-en="Add Category">添加分类</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <form method="POST" action="/admin/categories/save" class="admin-form">
+      <input type="hidden" name="id" id="cat_id">
+      <div class="form-group">
+        <label data-zh="分类名称" data-en="Category Name">分类名称</label>
+        <input type="text" name="name" id="cat_name" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label data-zh="标识(slug)" data-en="Slug">标识(slug)</label>
+        <input type="text" name="slug" id="cat_slug" class="form-input" required placeholder="如: ai-tools" data-zh-placeholder="如: ai-tools" data-en-placeholder="e.g. ai-tools">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-zh="图标(emoji)" data-en="Icon">图标(emoji)</label>
+          <input type="text" name="icon" id="cat_icon" class="form-input" value="📚">
+        </div>
+        <div class="form-group">
+          <label data-zh="颜色" data-en="Color">颜色</label>
+          <input type="color" name="color" id="cat_color" class="form-input form-color" value="#6366f1">
+        </div>
+        <div class="form-group">
+          <label data-zh="排序" data-en="Order">排序</label>
+          <input type="number" name="sort_order" id="cat_sort" class="form-input" value="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-zh="描述" data-en="Description">描述</label>
+        <input type="text" name="description" id="cat_desc" class="form-input">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()" data-zh="取消" data-en="Cancel">取消</button>
+        <button type="submit" class="btn btn-primary">💾 <span data-zh="保存" data-en="Save">保存</span></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function showAddForm() {
+  document.getElementById('modalTitle').textContent = '添加分类';
+  ['cat_id','cat_name','cat_slug','cat_icon','cat_desc','cat_sort'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cat_icon').value = '📚';
+  document.getElementById('cat_color').value = '#6366f1';
+  document.getElementById('categoryModal').style.display = 'flex';
+}
+function editCategory(c) {
+  document.getElementById('modalTitle').textContent = '编辑分类';
+  document.getElementById('cat_id').value = c.id;
+  document.getElementById('cat_name').value = c.name;
+  document.getElementById('cat_slug').value = c.slug;
+  document.getElementById('cat_icon').value = c.icon;
+  document.getElementById('cat_color').value = c.color || '#6366f1';
+  document.getElementById('cat_desc').value = c.description || '';
+  document.getElementById('cat_sort').value = c.sort_order || 0;
+  document.getElementById('categoryModal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('categoryModal').style.display = 'none'; }
+</script>
+
+<%- include('../partials/admin-footer') %>

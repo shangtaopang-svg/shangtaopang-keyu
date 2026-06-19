@@ -1,0 +1,197 @@
+<%- include('../partials/admin-header') %>
+
+<h2 class="admin-page-title"><%= video ? '✏️ ' : '➕ ' %><span data-zh="<%= video ? '编辑视频' : '添加视频' %>" data-en="<%= video ? 'Edit Video' : 'Add Video' %>"><%= video ? '编辑视频' : '添加视频' %></span></h2>
+
+<!-- 快速添加提示 -->
+<% if (!video) { %>
+<div class="admin-card" style="border-color:var(--primary);margin-bottom:16px;padding:16px">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span style="font-size:2rem">📕</span>
+    <div style="flex:1">
+      <strong style="font-size:0.95rem" data-zh="小红书视频快速添加" data-en="Xiaohongshu Quick Add">小红书视频快速添加</strong>
+      <p style="color:var(--text-muted);font-size:0.82rem;margin:2px 0 0" data-zh="复制标题和链接 → 选「小红书」平台 → 在小红书截图作为封面上传" data-en="Copy title & link → select 'Xiaohongshu' platform → use screenshot as cover">
+        复制标题和链接 → 选「小红书」平台 → 在小红书截图作为封面上传
+      </p>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline" onclick="quickFill('小红书')">📕 小红书</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="quickFill('抖音')">🎵 抖音</button>
+  </div>
+</div>
+<% } %>
+
+<div class="admin-card">
+  <form method="POST" action="/admin/videos/save" enctype="multipart/form-data" class="admin-form">
+    <% if (video) { %>
+      <input type="hidden" name="id" value="<%= video.id %>">
+    <% } %>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="title" data-zh="视频标题 *" data-en="Video Title *">视频标题 *</label>
+        <input type="text" id="title" name="title" class="form-input" value="<%= video ? video.title : '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="platform" data-zh="来源平台" data-en="Source Platform">来源平台</label>
+        <select id="platform" name="platform" class="form-input">
+          <option value="" data-zh="选择平台" data-en="Select Platform">选择平台</option>
+          <option value="抖音" <%= video && video.platform === '抖音' ? 'selected' : '' %>>抖音</option>
+          <option value="小红书" <%= video && video.platform === '小红书' ? 'selected' : '' %>>小红书</option>
+          <option value="今日头条" <%= video && video.platform === '今日头条' ? 'selected' : '' %>>今日头条</option>
+          <option value="B站" <%= video && video.platform === 'B站' ? 'selected' : '' %>>B站</option>
+          <option value="YouTube" <%= video && video.platform === 'YouTube' ? 'selected' : '' %>>YouTube</option>
+          <option value="X/Twitter" <%= video && video.platform === 'X/Twitter' ? 'selected' : '' %>>X/Twitter</option>
+          <option value="微信视频号" <%= video && video.platform === '微信视频号' ? 'selected' : '' %>>微信视频号</option>
+          <option value="其他" <%= video && video.platform === '其他' ? 'selected' : '' %>>其他</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category_id" data-zh="分类" data-en="Category">分类</label>
+        <select id="category_id" name="category_id" class="form-input">
+          <option value="" data-zh="选择分类" data-en="Select Category">选择分类</option>
+          <% categories.forEach(c => { %>
+            <option value="<%= c.id %>" <%= video && video.category_id == c.id ? 'selected' : '' %>><%= c.icon %> <%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ai_model_id" data-zh="AI模型" data-en="AI Model">AI模型</label>
+        <select id="ai_model_id" name="ai_model_id" class="form-input">
+          <option value="" data-zh="选择AI模型" data-en="Select AI Model">选择AI模型</option>
+          <% models.forEach(m => { %>
+            <option value="<%= m.id %>" <%= video && video.ai_model_id == m.id ? 'selected' : '' %>><%= m.icon %> <%= m.name %></option>
+          <% }) %>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="subcategory_id" data-zh="子分类" data-en="Subcategory">子分类</label>
+        <select id="subcategory_id" name="subcategory_id" class="form-input">
+          <option value="" data-zh="选择子分类" data-en="Select Subcategory">选择子分类</option>
+          <% if (typeof subcategories !== 'undefined' && subcategories) { subcategories.forEach(s => { %>
+            <option value="<%= s.id %>" data-cat="<%= s.category_id %>" <%= video && video.subcategory_id == s.id ? 'selected' : '' %>><%= s.icon %> <%= s.name %></option>
+          <% }); } %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="blogger_id" data-zh="关联博主" data-en="Linked Blogger">关联博主</label>
+        <select id="blogger_id" name="blogger_id" class="form-input">
+          <option value="" data-zh="不关联博主" data-en="No Blogger">不关联博主</option>
+          <% if (typeof bloggers !== 'undefined' && bloggers) { bloggers.forEach(b => { %>
+            <option value="<%= b.id %>" <%= video && video.blogger_id == b.id ? 'selected' : '' %>><%= b.name %></option>
+          <% }); } %>
+        </select>
+      </div>
+      <div class="form-group"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="description" data-zh="视频描述" data-en="Description">视频描述</label>
+      <textarea id="description" name="description" class="form-input form-textarea" rows="4"><%= video ? video.description : '' %></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="url" data-zh="原始链接" data-en="Original URL">原始链接</label>
+        <input type="url" id="url" name="url" class="form-input" placeholder="https://..." value="<%= video ? video.url : '' %>">
+      </div>
+      <div class="form-group">
+        <label for="duration" data-zh="时长（选填）" data-en="Duration (Optional)">时长（选填）</label>
+        <input type="text" id="duration" name="duration" class="form-input" placeholder="如: 12:34" value="<%= video ? video.duration : '' %>">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="embed_code" data-zh="嵌入代码" data-en="Embed Code">嵌入代码</label>
+      <textarea id="embed_code" name="embed_code" class="form-input form-textarea form-codearea" rows="4" placeholder="粘贴 iframe 嵌入代码"><%= video ? video.embed_code : '' %></textarea>
+      <p class="form-help" data-zh="从抖音、B站、YouTube等平台复制的嵌入代码（iframe），会直接显示在页面中" data-en="Embed code (iframe) copied from Douyin, Bilibili, YouTube, etc. It will be displayed directly on the page.">从抖音、B站、YouTube等平台复制的嵌入代码（iframe），会直接显示在页面中</p>
+    </div>
+
+    <div class="form-group">
+      <label>嵌入类型</label>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="embed_type" value="iframe" <%= !video || video.embed_type === 'iframe' ? 'checked' : '' %>> <span data-zh="iframe 嵌入" data-en="iframe Embed">iframe 嵌入</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="embed_type" value="link" <%= video && video.embed_type === 'link' ? 'checked' : '' %>> <span data-zh="跳转链接" data-en="Link Redirect">跳转链接</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="tags" data-zh="标签" data-en="Tags">标签</label>
+        <input type="text" id="tags" name="tags" class="form-input" placeholder="用逗号分隔，如: ChatGPT,提示词,教程" data-zh-placeholder="用逗号分隔，如: ChatGPT,提示词,教程" data-en-placeholder="Comma separated, e.g: ChatGPT,prompt,tutorial" value="<%= video ? video.tags : '' %>">
+      </div>
+      <div class="form-group">
+        <label for="source_author" data-zh="来源作者" data-en="Source Author">来源作者</label>
+        <input type="text" id="source_author" name="source_author" class="form-input" value="<%= video ? video.source_author : '' %>">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="source_link" data-zh="来源链接" data-en="Source Link">来源链接</label>
+      <input type="url" id="source_link" name="source_link" class="form-input" placeholder="https://..." value="<%= video ? video.source_link : '' %>">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="thumbnail" data-zh="封面图片" data-en="Cover Image">封面图片</label>
+        <input type="file" id="thumbnail" name="thumbnail" class="form-input" accept="image/*">
+        <% if (video && video.thumbnail) { %>
+          <input type="hidden" name="current_thumbnail" value="<%= video.thumbnail %>">
+          <div class="current-thumb">
+            <img src="<%= video.thumbnail %>" alt="当前封面" style="max-width:200px;margin-top:8px;border-radius:8px">
+          </div>
+        <% } %>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="featured" value="1" <%= video && video.featured ? 'checked' : '' %>>
+          ⭐ <span data-zh="设为精选推荐" data-en="Feature this video">设为精选推荐</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="/admin/videos" class="btn btn-outline" data-zh="取消" data-en="Cancel">取消</a>
+      <button type="submit" class="btn btn-primary">💾 <span data-zh="保存视频" data-en="Save Video">保存视频</span></button>
+    </div>
+  </form>
+</div>
+
+<script>
+// 快速填充平台
+function quickFill(platform) {
+  document.getElementById('platform').value = platform;
+  document.getElementById('platform').scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('title').focus();
+}
+
+// 子分类按分类过滤
+document.addEventListener('DOMContentLoaded', function() {
+  const catSelect = document.getElementById('category_id');
+  const subSelect = document.getElementById('subcategory_id');
+  if (catSelect && subSelect) {
+    function filterSubs() {
+      const catId = catSelect.value;
+      Array.from(subSelect.options).forEach(opt => {
+        if (opt.value === '') return;
+        opt.style.display = opt.dataset.cat === catId ? '' : 'none';
+      });
+      // 如果当前选中的子分类不属于所选分类，重置
+      if (subSelect.value && subSelect.selectedOptions[0]?.dataset?.cat !== catId) {
+        subSelect.value = '';
+      }
+    }
+    catSelect.addEventListener('change', filterSubs);
+    filterSubs();
+  }
+});
+</script>
+<%- include('../partials/admin-footer') %>

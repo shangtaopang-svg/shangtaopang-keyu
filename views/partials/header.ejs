@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'shangtaopang-可与' %></title>
+  <meta name="description" content="shangtaopang-可与 - 精选各平台优质AI学习视频，分类整理，方便学习">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <span class="logo-text">shangtaopang<span class="logo-highlight">-可与</span></span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="/" class="nav-link <%= currentPage === 'home' ? 'active' : '' %>" data-zh="首页" data-en="Home">首页</a>
+        <a href="/about" class="nav-link <%= currentPage === 'about' ? 'active' : '' %>" data-zh="关于" data-en="About">关于</a>
+        <a href="/categories" class="nav-link <%= currentPage === 'categories' ? 'active' : '' %>" data-zh="学习" data-en="Learn">学习</a>
+        <a href="/works" class="nav-link <%= currentPage === 'works' ? 'active' : '' %>" data-zh="作品" data-en="Works">作品</a>
+        <a href="/stats" class="nav-link <%= currentPage === 'stats' ? 'active' : '' %>" data-zh="统计" data-en="Stats">统计</a>
+        <a href="/gallery" class="nav-link <%= currentPage === 'gallery' ? 'active' : '' %>" data-zh="影集" data-en="Gallery">影集</a>
+        <a href="/travel" class="nav-link <%= currentPage === 'travel' ? 'active' : '' %>" data-zh="足迹" data-en="Travel">足迹</a>
+        <a href="/gramophone" class="nav-link <%= currentPage === 'gramophone' ? 'active' : '' %>" data-zh="留声机" data-en="Gramophone">云祥留声机</a>
+        <a href="/admin/dashboard" class="nav-link nav-admin" data-zh="管理后台" data-en="Admin">管理后台</a>
+      </nav>
+
+      <div class="header-right">
+        <!-- 风格切换下拉菜单 -->
+        <div class="style-dropdown" id="styleDropdown">
+          <button class="style-btn" id="styleBtn"><span data-zh="风格" data-en="Style">🎨 风格</span></button>
+          <div class="style-menu" id="styleMenu">
+            <div class="style-option active" data-style="color-wall">色板卡风格</div>
+            <div class="style-option" data-style="brutalism">新野兽派</div>
+            <div class="style-option" data-style="magazine">杂志编辑风</div>
+            <div class="style-option" data-style="organic">有机自然风</div>
+          </div>
+        </div>
+        <form class="search-form" action="/search" method="GET">
+          <input type="text" name="q" class="search-input" placeholder="搜索视频..." data-zh="搜索视频..." data-en="Search videos..." value="<%= typeof query !== 'undefined' ? query : '' %>">
+          <button type="submit" class="search-btn">🔍</button>
+        </form>
+        <button class="lang-toggle" id="langToggle" onclick="toggleLang()" title="切换语言">CN</button>
+        <button class="theme-toggle" id="themeToggle" aria-label="切换主题" title="切换白天/黑夜模式">🌙</button>
+        <button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 移动端菜单 -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="/" class="mobile-nav-link" data-zh="🏠 首页" data-en="🏠 Home">🏠 首页</a>
+    <a href="/about" class="mobile-nav-link" data-zh="👤 关于" data-en="👤 About">👤 关于</a>
+    <a href="/categories" class="mobile-nav-link" data-zh="📂 学习" data-en="📂 Learn">📂 学习</a>
+    <a href="/works" class="mobile-nav-link" data-zh="🚀 作品" data-en="🚀 Works">🚀 作品</a>
+    <a href="/stats" class="mobile-nav-link" data-zh="📊 统计" data-en="📊 Stats">📊 统计</a>
+    <a href="/gallery" class="mobile-nav-link" data-zh="📸 影集" data-en="📸 Gallery">📸 影集</a>
+    <a href="/travel" class="mobile-nav-link" data-zh="🗺️ 足迹" data-en="🗺️ Travel">🗺️ 足迹</a>
+    <a href="/admin/dashboard" class="mobile-nav-link" data-zh="🔐 管理后台" data-en="🔐 Admin">🔐 管理后台</a>
+    <form class="mobile-search" action="/search" method="GET">
+      <input type="text" name="q" class="search-input" placeholder="搜索视频..." data-zh="搜索视频..." data-en="Search videos...">
+      <button type="submit" data-zh="搜索" data-en="Search">搜索</button>
+    </form>
+  </div>
+
+  
+  <!-- 全站背景音乐 -->
+  <div class="bgm-float" id="bgmFloat">
+    <div class="bgm-btn" id="bgmBtn">
+      <span id="bgmIcon">🎵</span>
+    </div>
+    <div class="bgm-panel" id="bgmPanel">
+      <div class="bgm-panel-inner">
+        <div class="bgm-row">
+          <span class="bgm-now">BGMusic</span>
+          <span class="bgm-close" onclick="bgmHide()">&#x2715;</span>
+        </div>
+        <div class="bgm-row"><span class="bgm-song" id="bgmSong">——</span></div><div class="bgm-list" id="bgmList"></div>
+        <div class="bgm-row bgm-ctrl">
+          <button class="bgm-ctrl-btn" onclick="bgmPrev()">&#x23EE;</button>
+          <button class="bgm-ctrl-btn bgm-play-btn" id="bgmPlayBtn" onclick="bgmToggle()">&#x25B6;</button>
+          <button class="bgm-ctrl-btn" onclick="bgmNext()">&#x23ED;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+  .bgm-float{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .bgm-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#c41e3a,#a81830);border:none;color:#fff;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(196,30,58,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
+  .bgm-btn:hover{transform:scale(1.1)}
+  .bgm-btn.paused{animation:bgmPulse 2s ease-in-out infinite}
+  @keyframes bgmPulse{0%,100%{box-shadow:0 4px 16px rgba(196,30,58,0.3)}50%{box-shadow:0 4px 24px rgba(196,30,58,0.5)}}
+  .bgm-panel{background:rgba(20,20,24,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px 14px;min-width:180px;display:none;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+  .bgm-panel.open{display:block}
+  .bgm-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .bgm-row:last-child{margin-bottom:0}
+  .bgm-now{font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em}
+  .bgm-close{font-size:0.7rem;color:rgba(255,255,255,0.3);cursor:pointer;padding:2px 4px}
+  .bgm-close:hover{color:#fff}
+  .bgm-song{font-size:0.8rem;color:#fff;font-weight:600;min-height:1.2em}
+  .bgm-ctrl{justify-content:center;gap:10px;margin-top:4px}.bgm-list{margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:4px}.bgm-list-item{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;cursor:pointer;font-size:0.72rem;color:rgba(255,255,255,0.4);transition:all 0.2s}.bgm-list-item:hover{background:rgba(255,255,255,0.06);color:#fff}.bgm-list-item.active{color:#c41e3a;font-weight:600}
+  .bgm-ctrl-btn{width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+  .bgm-ctrl-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
+  .bgm-play-btn{width:36px;height:36px;background:linear-gradient(135deg,#c41e3a,#a81830);color:#fff;font-size:0.95rem}
+  .bgm-play-btn:hover{background:linear-gradient(135deg,#d42a48,#b81e38)}
+  @media(max-width:640px){.bgm-float{bottom:16px;right:16px}.bgm-btn{width:38px;height:38px;font-size:1rem}}
+  </style>
+  <script>
+  var bgmAudio=new Audio(),bgmList=[{file:'/music/1.mp3',name:'萨哈克回家'},{file:'/music/liangzhu.mp3',name:'梁祝 (钢琴版)'}];
+  var bgmIdx=parseInt(localStorage.getItem('bgm-idx')||'0'),bgmPlaying=localStorage.getItem('bgm-playing')!=='false',bgmPanelOpen=false;
+  function renderBgmList(){var el=document.getElementById('bgmList');if(!el)return;var h='';bgmList.forEach(function(s,i){h+='<div class="bgm-list-item" onclick="bgmSelect('+i+')">'+(i===bgmIdx?'▶ ':'  ')+s.name+'</div>'});el.innerHTML=h}function bgmSelect(idx){bgmLoad(idx);bgmAudio.play().then(function(){bgmPlaying=true;updateBgmUI()})['catch'](function(){})}function bgmInit(){bgmAudio.volume=0.3;bgmAudio.loop=false;bgmLoad(bgmIdx);bgmAudio.addEventListener('ended',bgmNext);var st=localStorage.getItem('bgm-time');var resumed=false;bgmAudio.addEventListener('canplay',function(){if(st&&!resumed){resumed=true;bgmAudio.currentTime=parseFloat(st)}if(bgmPlaying)bgmAudio.play()['catch'](function(){})},{once:true});if(bgmPlaying)setTimeout(function(){bgmAudio.play()['catch'](function(){})},500);updateBgmUI();var started=false;document.addEventListener('click',function(){if(!started){started=true;if(bgmAudio.paused)bgmAudio.play()['catch'](function(){})}});setInterval(function(){if(!bgmAudio.paused)localStorage.setItem('bgm-time',bgmAudio.currentTime)},2000)}
+  function bgmLoad(idx){if(idx<0||idx>=bgmList.length)idx=0;bgmIdx=idx;bgmAudio.src=bgmList[idx].file;bgmAudio.load();localStorage.setItem('bgm-idx',idx);var el=document.getElementById('bgmSong');if(el)el.textContent=bgmList[idx].name;renderBgmList()}
+  function bgmToggle(){if(bgmAudio.paused){bgmAudio.play().then(function(){bgmPlaying=true;updateBgmUI()})['catch'](function(){})}else{bgmAudio.pause();bgmPlaying=false;updateBgmUI()}localStorage.setItem('bgm-playing',bgmPlaying)}
+  function bgmNext(){bgmLoad((bgmIdx+1)%bgmList.length);if(bgmPlaying){bgmAudio.play()['catch'](function(){})}updateBgmUI()}
+  function bgmPrev(){bgmLoad((bgmIdx-1+bgmList.length)%bgmList.length);if(bgmPlaying){bgmAudio.play()['catch'](function(){})}updateBgmUI()}
+  function updateBgmUI(){var btn=document.getElementById('bgmBtn'),icon=document.getElementById('bgmIcon'),pb=document.getElementById('bgmPlayBtn');if(bgmPlaying&&!bgmAudio.paused){if(btn)btn.classList.remove('paused');if(icon)icon.textContent='\uD83C\uDFB5';if(pb)pb.textContent='\u23F8'}else{if(btn)btn.classList.add('paused');if(icon)icon.textContent='\uD83C\uDFB5';if(pb)pb.textContent='\u25B6'}}
+  function bgmHide(){var p=document.getElementById('bgmPanel');if(p)p.classList.remove('open');bgmPanelOpen=false}
+  document.getElementById('bgmBtn')?.addEventListener('click',function(e){e.stopPropagation();var p=document.getElementById('bgmPanel');bgmPanelOpen=!bgmPanelOpen;if(p)p.classList.toggle('open',bgmPanelOpen)});
+  document.addEventListener('click',function(){if(bgmPanelOpen)bgmHide()});
+  bgmInit();
+  </script>
+
+	  <main class="main-content">

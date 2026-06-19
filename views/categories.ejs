@@ -1,0 +1,28 @@
+<%- include('partials/header') %>
+
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title">📂 <span data-zh="全部分类" data-en="All Categories">全部分类</span></h1>
+    <p class="page-desc" data-zh="按分类浏览AI学习视频，找到你感兴趣的内容" data-en="Browse AI learning videos by category and find what interests you">按分类浏览AI学习视频，找到你感兴趣的内容</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="category-grid-large">
+      <% categories.forEach(c => { %>
+        <a href="/category/<%= c.slug %>" class="category-card-large" style="--cat-color: <%= c.color %>">
+          <div class="cat-large-icon"><%= c.icon %></div>
+          <div class="cat-large-info">
+            <h3><%= c.name %></h3>
+            <p><%= c.description || '' %></p>
+            <span class="cat-count-badge"><%= c.video_count || 0 %> <span data-zh="个视频" data-en="videos">个视频</span></span>
+          </div>
+          <span class="cat-arrow">→</span>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,35 @@
+<%- include('partials/header') %>
+
+<div class="gramophone-page">
+  <%- include('partials/vinyl-player') %>
+</div>
+
+<style>
+.gramophone-page {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+.gramophone-page .vinyl-section {
+  padding: 30px 20px 40px;
+  width: 100%;
+  max-width: 1000px;
+  border-radius: 20px;
+  background: #faf7f2;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+  margin: 20px;
+}
+[data-style="organic"] .gramophone-page .vinyl-section { background: #faf7f2; }
+[data-style="brutalism"] .gramophone-page .vinyl-section { background: #f5f0e8; border: 3px solid #000; border-radius: 0; box-shadow: 8px 8px 0 #000; }
+[data-style="magazine"] .gramophone-page .vinyl-section { background: #faf8f5; border-radius: 0; }
+
+@media (max-width: 640px) {
+  .gramophone-page { padding: 10px 0; }
+  .gramophone-page .vinyl-section { margin: 10px; padding: 16px 12px 24px; }
+}
+</style>
+
+<%- include('partials/footer') %>

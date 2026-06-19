@@ -1,0 +1,28 @@
+<%- include('partials/header') %>
+
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title" data-zh="🤖 全部 AI 模型" data-en="🤖 All AI Models">🤖 全部 AI 模型</h1>
+    <p class="page-desc" data-zh="按AI模型浏览相关学习视频，掌握不同工具的使用技巧" data-en="Browse learning videos by AI model and master different tools">按AI模型浏览相关学习视频，掌握不同工具的使用技巧</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="model-grid-all">
+      <% models.forEach(m => { %>
+        <a href="/model/<%= m.slug %>" class="model-card-large" style="--model-color: <%= m.color %>">
+          <span class="model-lg-icon"><%= m.icon %></span>
+          <div class="model-lg-info">
+            <h3><%= m.name %></h3>
+            <span class="model-company-tag"><%= m.company || '' %></span>
+            <p><%= m.description || '' %></p>
+            <span class="model-count-badge" data-zh="<%= m.video_count || 0 %> 个视频" data-en="<%= m.video_count || 0 %> videos"><%= m.video_count || 0 %> 个视频</span>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

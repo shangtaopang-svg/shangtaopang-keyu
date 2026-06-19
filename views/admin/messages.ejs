@@ -1,0 +1,70 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-toolbar">
+  <h2 class="admin-page-title" data-zh="💬 留言管理" data-en="💬 Messages">💬 留言管理</h2>
+  <span class="admin-badge"><%= messages.length %> <span data-zh="条" data-en="items">条</span></span>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th style="width:120px" data-zh="姓名" data-en="Name">姓名</th>
+          <th style="width:160px" data-zh="邮箱" data-en="Email">邮箱</th>
+          <th data-zh="留言内容" data-en="Message">留言内容</th>
+          <th style="width:120px" data-zh="时间" data-en="Date">时间</th>
+          <th style="width:100px" data-zh="状态" data-en="Status">状态</th>
+          <th style="width:100px" data-zh="操作" data-en="Actions">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (messages.length === 0) { %>
+          <tr><td colspan="7" class="text-center" data-zh="暂无留言" data-en="No messages yet">暂无留言</td></tr>
+        <% } else { %>
+          <% messages.forEach((m, i) => { %>
+            <tr class="<%= !m.is_read ? 'unread' : '' %>">
+              <td><%= i + 1 %></td>
+              <td><strong><%= m.name %></strong></td>
+              <td><%= m.email || '-' %></td>
+              <td style="max-width:300px;white-space:pre-wrap;word-break:break-word"><%= m.message %></td>
+              <td style="white-space:nowrap"><%= new Date(m.created_at).toLocaleDateString('zh-CN') + ' ' + new Date(m.created_at).toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) %></td>
+              <td>
+                <% if (m.is_read) { %>
+                  <span class="tag tag-gray" data-zh="已读" data-en="Read">已读</span>
+                <% } else { %>
+                  <span class="tag tag-green" data-zh="未读" data-en="New">未读</span>
+                <% } %>
+              </td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <% if (!m.is_read) { %>
+                    <a href="/admin/messages/read/<%= m.id %>" class="btn btn-sm btn-outline" data-zh="标已读" data-en="Mark Read">标已读</a>
+                  <% } %>
+                  <a href="/admin/messages/delete/<%= m.id %>" class="btn btn-sm btn-danger" onclick="return confirm('确定删除？')" data-zh="删除" data-en="Delete">删除</a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+.admin-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.admin-badge { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+tr.unread { background: rgba(59,130,246,0.03); }
+tr.unread td:first-child { border-left: 3px solid #3b82f6; }
+.tag { display: inline-block; padding: 2px 10px; font-size: 0.7rem; font-weight: 700; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.tag-green { background: rgba(16,185,129,0.1); color: #059669; }
+.tag-gray { background: rgba(0,0,0,0.05); color: #999; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #ef4444; }
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+</style>
+
+<%- include('../partials/admin-footer') %>

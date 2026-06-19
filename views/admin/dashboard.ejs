@@ -1,0 +1,85 @@
+<%- include('../partials/admin-header') %>
+
+<h2 class="admin-page-title" data-zh="仪表盘" data-en="Dashboard">仪表盘</h2>
+
+<div class="stats-grid">
+  <div class="stat-card stat-blue">
+    <span class="stat-icon">🎬</span>
+    <div class="stat-info">
+      <span class="stat-value"><%= stats.published %></span>
+      <span class="stat-label" data-zh="已发布视频" data-en="Published Videos">已发布视频</span>
+    </div>
+  </div>
+  <div class="stat-card stat-purple">
+    <span class="stat-icon">📂</span>
+    <div class="stat-info">
+      <span class="stat-value"><%= stats.categories %></span>
+      <span class="stat-label" data-zh="分类" data-en="Categories">分类</span>
+    </div>
+  </div>
+  <div class="stat-card stat-green">
+    <span class="stat-icon">🤖</span>
+    <div class="stat-info">
+      <span class="stat-value"><%= stats.models %></span>
+      <span class="stat-label" data-zh="AI模型" data-en="AI Models">AI模型</span>
+    </div>
+  </div>
+  <div class="stat-card stat-orange">
+    <span class="stat-icon">👁️</span>
+    <div class="stat-info">
+      <span class="stat-value"><%= stats.totalViews %></span>
+      <span class="stat-label" data-zh="总播放量" data-en="Total Views">总播放量</span>
+    </div>
+  </div>
+  <div class="stat-card" style="--stat-color:#ec4899">
+    <span class="stat-icon">👤</span>
+    <div class="stat-info">
+      <span class="stat-value" style="color:#ec4899"><%= stats.bloggers %></span>
+      <span class="stat-label" data-zh="博主" data-en="Bloggers">博主</span>
+    </div>
+  </div>
+  <div class="stat-card" style="--stat-color:#f59e0b">
+    <span class="stat-icon">💬</span>
+    <div class="stat-info">
+      <span class="stat-value" style="color:#f59e0b"><%= stats.unreadMessages %></span>
+      <span class="stat-label" data-zh="未读留言" data-en="Unread Msgs">未读留言</span>
+    </div>
+  </div>
+</div>
+
+<div class="admin-card">
+  <div class="card-header">
+    <h3 data-zh="最近添加的视频" data-en="Recent Videos">最近添加的视频</h3>
+    <a href="/admin/videos" class="btn btn-sm" data-zh="查看全部" data-en="View All">查看全部</a>
+  </div>
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th data-zh="标题" data-en="Title">标题</th>
+          <th data-zh="分类" data-en="Category">分类</th>
+          <th data-zh="平台" data-en="Platform">平台</th>
+          <th data-zh="播放量" data-en="Views">播放量</th>
+          <th data-zh="添加时间" data-en="Added">添加时间</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (recentVideos.length === 0) { %>
+          <tr><td colspan="5" class="text-center" data-zh="暂无数据，快去添加第一个视频吧！" data-en="No data yet. Go add your first video!">暂无数据，快去添加第一个视频吧！</td></tr>
+        <% } else { %>
+          <% recentVideos.forEach(v => { %>
+            <tr>
+              <td><%= v.title %></td>
+              <td><%= v.category_name || '-' %></td>
+              <td><%= v.platform || '-' %></td>
+              <td><%= v.views || 0 %></td>
+              <td><%= new Date(v.created_at).toLocaleDateString('zh-CN') %></td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/admin-footer') %>

@@ -1,0 +1,177 @@
+<%- include('../partials/admin-header') %>
+
+<h2 class="admin-page-title"><%= blogger ? '<span data-zh="编辑博主" data-en="Edit Blogger">✏️ 编辑博主</span>' : '<span data-zh="添加博主（含自动抓取）" data-en="Add Blogger (with Auto-fetch)">➕ 添加博主（含自动抓取）</span>' %></h2>
+
+<!-- 自动抓取区域 -->
+<div class="admin-card" style="border-color: var(--primary); margin-bottom:24px">
+  <h3 style="margin-bottom:12px" data-zh="自动抓取视频" data-en="Auto-fetch Videos">🤖 自动抓取视频</h3>
+  <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px" data-zh="输入博主主页URL，自动识别平台并抓取其全部视频（支持 B站 / YouTube）" data-en="Enter blogger's homepage URL, auto-detect platform and fetch all videos (supports Bilibili / YouTube)">输入博主主页URL，自动识别平台并抓取其全部视频（支持 B站 / YouTube）</p>
+
+  <form method="POST" action="/admin/bloggers/fetch-preview" class="admin-form">
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <input type="url" name="url" class="form-input" data-zh-placeholder="https://space.bilibili.com/123456 或 YouTube频道链接" data-en-placeholder="https://space.bilibili.com/123456 or YouTube channel link" placeholder="https://space.bilibili.com/123456 或 YouTube频道链接" value="<%= typeof fetchUrl !== 'undefined' ? fetchUrl : '' %>" required>
+      </div>
+      <div class="form-group" style="flex:1">
+        <select name="category_id" class="form-input">
+          <option value="" data-zh="选择默认分类" data-en="Select Default Category">选择默认分类</option>
+          <% categories.forEach(c => { %>
+            <option value="<%= c.id %>" <%= typeof defaultCategory !== 'undefined' && defaultCategory == c.id ? 'selected' : '' %>><%= c.icon %> <%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1">
+        <select name="ai_model_id" class="form-input">
+          <option value="" data-zh="选择默认AI模型" data-en="Select Default AI Model">选择默认AI模型</option>
+          <% models.forEach(m => { %>
+            <option value="<%= m.id %>" <%= typeof defaultModel !== 'undefined' && defaultModel == m.id ? 'selected' : '' %>><%= m.icon %> <%= m.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group" style="flex:0 0 auto">
+        <button type="submit" class="btn btn-primary" data-zh="抓取预览" data-en="Fetch Preview">🔍 抓取预览</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- 抓取结果展示 -->
+  <% if (typeof fetchResult !== 'undefined' && fetchResult) { %>
+    <div style="margin-top:16px;padding:16px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--border)">
+      <% if (fetchResult.success) { %>
+        <div class="alert alert-success">
+          ✅ <%= fetchResult.message %>
+          <% if (fetchResult.bloggerName) { %> — 博主: <strong><%= fetchResult.bloggerName %></strong><% } %>
+        </div>
+
+        <% if (fetchResult.videos && fetchResult.videos.length > 0) { %>
+          <div style="margin-top:12px;max-height:400px;overflow-y:auto">
+            <table class="admin-table">
+              <thead>
+                <tr><th style="width:40px">#</th><th>标题</th><th>时长</th><th>平台</th></tr>
+              </thead>
+              <tbody>
+                <% fetchResult.videos.slice(0, 50).forEach((v, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= v.title %></td>
+                    <td><%= v.duration || '-' %></td>
+                    <td><%= v.platform %></td>
+                  </tr>
+                <% }) %>
+                <% if (fetchResult.videos.length > 50) { %>
+                  <tr><td colspan="4" style="color:var(--text-muted);text-align:center">...还有 <%= fetchResult.videos.length - 50 %> 个视频</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <form method="POST" action="/admin/bloggers/fetch-save" style="margin-top:16px">
+            <input type="hidden" name="url" value="<%= fetchUrl %>">
+            <input type="hidden" name="category_id" value="<%= typeof defaultCategory !== 'undefined' ? defaultCategory : '' %>">
+            <input type="hidden" name="ai_model_id" value="<%= typeof defaultModel !== 'undefined' ? defaultModel : '' %>">
+            <input type="hidden" name="blogger_name" value="<%= fetchResult.bloggerName %>">
+            <input type="hidden" name="platform" value="<%= fetchResult.platform %>">
+            <input type="hidden" name="platform_user_id" value="<%= fetchResult.userId %>">
+            <input type="hidden" name="videos_json" value='<%- JSON.stringify(fetchResult.videos) %>'>
+            <button type="submit" class="btn btn-primary" data-zh="确认保存（共 X 个视频）" data-en="Confirm Save (Total X videos)">💾 确认保存（共 <%= fetchResult.videos.length %> 个视频）</button>
+          </form>
+        <% } %>
+      <% } else { %>
+        <div class="alert alert-error" data-zh="错误" data-en="Error">❌ <%= fetchResult.message %></div>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-top:8px" data-zh="目前支持自动抓取的平台及操作说明" data-en="Currently supported platforms for auto-fetch and instructions">
+          目前支持自动抓取的平台：<br>
+          • <strong>B站</strong>：✅ 支持 — 输入空间链接 https://space.bilibili.com/用户ID<br>
+          • <strong>YouTube</strong>：✅ 支持 — 输入频道链接 https://www.youtube.com/@频道名<br>
+          • <strong>小红书</strong>：⚠️ 可尝试 — 输入主页链接，但小红书反爬严格，可能抓不到<br>
+          • 其他平台：请手动添加视频
+        </p>
+      <% } %>
+    </div>
+  <% } %>
+</div>
+
+<!-- 博主信息编辑表单 -->
+<div class="admin-card">
+  <h3 style="margin-bottom:16px"><%= blogger ? '<span data-zh="编辑博主信息" data-en="Edit Blogger Info">编辑博主信息</span>' : '<span data-zh="填写博主信息" data-en="Fill Blogger Info">填写博主信息</span>' %></h3>
+  <form method="POST" action="/admin/bloggers/save" enctype="multipart/form-data" class="admin-form">
+    <% if (blogger) { %>
+      <input type="hidden" name="id" value="<%= blogger.id %>">
+    <% } %>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name" data-zh="博主名称 *" data-en="Blogger Name *">博主名称 *</label>
+        <input type="text" id="name" name="name" class="form-input" value="<%= blogger ? blogger.name : (fetchResult && fetchResult.bloggerName ? fetchResult.bloggerName : '') %>" required>
+      </div>
+      <div class="form-group">
+        <label for="slug" data-zh="标识(slug)" data-en="Slug">标识(slug)</label>
+        <input type="text" id="slug" name="slug" class="form-input" value="<%= blogger ? blogger.slug : '' %>" data-zh-placeholder="自动生成" data-en-placeholder="Auto-generated" placeholder="自动生成">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="platform" data-zh="平台" data-en="Platform">平台</label>
+        <select id="platform" name="platform" class="form-input">
+          <option value="bilibili" <%= blogger && blogger.platform === 'bilibili' ? 'selected' : '' %>>📺 B站</option>
+          <option value="youtube" <%= blogger && blogger.platform === 'youtube' ? 'selected' : '' %>>▶️ YouTube</option>
+          <option value="xiaohongshu" <%= blogger && blogger.platform === 'xiaohongshu' ? 'selected' : '' %>>📕 小红书</option>
+          <option value="douyin" <%= blogger && blogger.platform === 'douyin' ? 'selected' : '' %>>🎵 抖音</option>
+          <option value="twitter" <%= blogger && blogger.platform === 'twitter' ? 'selected' : '' %>>🐦 X/Twitter</option>
+          <option value="other" <%= !blogger || blogger.platform === 'other' ? 'selected' : '' %>>🌐 其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="platform_user_id" data-zh="平台用户ID" data-en="Platform User ID">平台用户ID</label>
+        <input type="text" id="platform_user_id" name="platform_user_id" class="form-input" value="<%= blogger ? blogger.platform_user_id : (fetchResult && fetchResult.userId ? fetchResult.userId : '') %>">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="homepage_url" data-zh="主页链接" data-en="Homepage URL">主页链接</label>
+      <input type="url" id="homepage_url" name="homepage_url" class="form-input" value="<%= blogger ? blogger.homepage_url : (typeof fetchUrl !== 'undefined' ? fetchUrl : '') %>" data-zh-placeholder="https://..." data-en-placeholder="https://..." placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+      <label for="description" data-zh="简介" data-en="Summary">简介</label>
+      <input type="text" id="description" name="description" class="form-input" value="<%= blogger ? blogger.description : '' %>" data-zh-placeholder="一句话介绍" data-en-placeholder="One-line summary" placeholder="一句话介绍">
+    </div>
+
+    <div class="form-group">
+      <label for="bio" data-zh="详细描述" data-en="Bio">详细描述</label>
+      <textarea id="bio" name="bio" class="form-input form-textarea" rows="3"><%= blogger ? blogger.bio : '' %></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="avatar" data-zh="头像" data-en="Avatar">头像</label>
+        <input type="file" id="avatar" name="avatar" class="form-input" accept="image/*">
+        <% if (blogger && blogger.avatar) { %>
+          <input type="hidden" name="current_avatar" value="<%= blogger.avatar %>">
+          <img src="<%= blogger.avatar %>" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin-top:8px">
+        <% } %>
+      </div>
+      <div class="form-group">
+        <label data-zh="状态" data-en="Status">状态</label>
+        <div class="radio-group" style="margin-top:8px">
+          <label class="radio-label"><input type="radio" name="status" value="active" <%= !blogger || blogger.status === 'active' ? 'checked' : '' %>> <span data-zh="启用" data-en="Active">✅ 启用</span></label>
+          <label class="radio-label"><input type="radio" name="status" value="inactive" <%= blogger && blogger.status === 'inactive' ? 'checked' : '' %>> <span data-zh="禁用" data-en="Inactive">⛔ 禁用</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input type="checkbox" name="featured" value="1" <%= blogger && blogger.featured ? 'checked' : '' %>>
+        <span data-zh="设为推荐博主" data-en="Feature this blogger">⭐ 设为推荐博主</span>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <a href="/admin/bloggers" class="btn btn-outline" data-zh="取消" data-en="Cancel">取消</a>
+      <button type="submit" class="btn btn-primary" data-zh="保存博主" data-en="Save Blogger">💾 保存博主</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/admin-footer') %>

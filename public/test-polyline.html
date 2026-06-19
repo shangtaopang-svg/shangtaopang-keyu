@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html><head>
+<link rel="stylesheet" href="/css/leaflet.css" />
+<script src="/js/leaflet.js"></script>
+</head><body>
+<div id="m" style="width:100%;height:400px"></div>
+<script>
+var map = L.map('m', {center: [29.29, 121.43], zoom: 5});
+L.tileLayer('https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {maxZoom:18}).addTo(map);
+var pts = [[29.29,121.43],[30.57,104.07],[34.26,108.94]];
+L.polyline(pts, {color:'red', weight:3}).addTo(map);
+pts.forEach(function(p){L.circleMarker(p,{radius:4,color:'red'}).addTo(map);});
+document.title = 'MAP_TEST';
+</script></body></html>

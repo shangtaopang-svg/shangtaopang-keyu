@@ -1,0 +1,216 @@
+<%- include('partials/header') %>
+
+<div class="vs-body">
+  <div class="vs-grid">
+      <!-- ===== 左侧：视频区（独立滑动） ===== -->
+      <div class="vs-left">
+        <div class="vs-player" style="position:relative">
+          <% if (video.embed_code) { %>
+            <%- video.embed_code %>
+          <% } else if (video.url) { %>
+            <a href="<%= video.url %>" target="_blank" rel="noopener" class="vs-player-cover" style="display:block;width:100%;height:100%;position:relative;overflow:hidden">
+              <% if (video.thumbnail) { %>
+                <img src="<%= video.thumbnail %>" style="width:100%;height:100%;object-fit:cover" referrerpolicy="no-referrer">
+                <div style="position:absolute;inset:0;background:rgba(0,0,0,0.2)"></div>
+              <% } else { %>
+                <div style="position:absolute;inset:0;background:linear-gradient(135deg,<%= video.platform === '小红书' ? '#fe2c55,#ff6b6b' : video.platform === '抖音' ? '#1a1a2e,#16213e' : '#6366f1,#4f46e5' %>)"></div>
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+                  <span style="font-size:5rem;filter:drop-shadow(0 4px 20px rgba(0,0,0,0.3));opacity:0.9">
+                    <%= video.platform === '小红书' ? '📕' : video.platform === '抖音' ? '🎵' : '🎬' %>
+                  </span>
+                </div>
+              <% } %>
+              <!-- 播放按钮 -->
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,0.3);transition:all 0.2s" onmouseover="this.style.transform='translate(-50%,-50%) scale(1.1)'" onmouseout="this.style.transform='translate(-50%,-50%) scale(1)'">
+                <span style="font-size:2rem;color:#fff;margin-left:4px">▶</span>
+              </div>
+              <!-- 底部标识 -->
+              <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:0.8rem;color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.3);padding:4px 16px;border-radius:12px;backdrop-filter:blur(4px)" data-zh="▶ 点击播放 · <%= video.platform || '外部视频' %>" data-en="▶ Click to play · <%= video.platform || 'External video' %>">
+                ▶ 点击播放 · <%= video.platform || '外部视频' %>
+              </div>
+            </a>
+          <% } else { %>
+            <div class="vs-player-placeholder">
+              <span class="vsp-icon">🎬</span>
+              <p data-zh="视频未配置" data-en="Video not configured">视频未配置</p>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="vs-info">
+          <h1 class="vs-title"><%= video.title %></h1>
+          <div class="vs-meta-bar">
+            <div class="vs-meta-tags">
+              <% if (video.category_name) { %><a href="/category/<%= video.category_slug %>" class="tag" style="background:<%= video.category_color || '#6366f1' %>20;color:<%= video.category_color || '#6366f1' %>"><%= video.category_icon || '📂' %> <%= video.category_name %></a><% } %>
+              <% if (video.model_name) { %><a href="/model/<%= video.model_slug %>" class="tag" style="background:#8b5cf620;color:#8b5cf6">🤖 <%= video.model_name %></a><% } %>
+              <% if (video.blogger_name) { %><a href="/blogger/<%= video.blogger_slug %>" class="tag" style="background:#ec489920;color:#ec4899">👤 <%= video.blogger_name %></a><% } %>
+            </div>
+            <div class="vs-meta-info"><span><%= video.platform || '' %></span><span>👁️ <%= video.views || 0 %></span></div>
+          </div>
+          <% if (video.description) { %><div class="vs-desc"><%= video.description.replace(/\n/g, '<br>') %></div><% } %>
+        </div>
+
+        <!-- 左侧下方填充：精华要点 -->
+        <% if (analysis && analysis.highlights && analysis.highlights.keyPoints) { %>
+        <div class="vs-side-points">
+          <% analysis.highlights.keyPoints.slice(0, 4).forEach(p => { %>
+            <div class="vs-side-point"><%= p.icon %> <%= p.text %></div>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- ===== 右侧：思维导图 + 笔记 ===== -->
+      <div class="vs-right">
+        <div class="vs-right-sticky">
+          <!-- 操作按钮 -->
+          <div class="vs-actions">
+            <a href="/study/analyze/<%= video.id %>" class="btn btn-primary btn-sm" style="flex:1;justify-content:center" data-zh="🧠 完整分析" data-en="🧠 Full Analysis">🧠 完整分析</a>
+            <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center" onclick="toggleNote()" data-zh="📝 笔记" data-en="📝 Notes">📝 笔记</button>
+          </div>
+
+          <!-- 树形思维导图 -->
+          <div class="vs-panel" style="border-color:var(--primary)">
+            <div class="vp-header" onclick="toggleVp('vpTreeBody')">
+              <span><span data-zh="🧠 思维导图" data-en="🧠 Mind Map">🧠 思维导图 </span><span style="font-weight:400;font-size:0.75rem;color:var(--text-muted)" data-zh="点击展开" data-en="Click to expand">点击展开</span></span>
+              <span class="vp-toggle">▼</span>
+            </div>
+            <div class="vp-body" id="vpTreeBody">
+              <% if (analysis && analysis.mindmap) { %>
+                <% function renderTree(node, depth) { %>
+                  <div class="vt-node" style="--depth:<%= depth %>">
+                    <div class="vt-row" onclick="<%= (!node.leaf && node.children) ? 'toggleTree(this)' : '' %>">
+                      <% if (!node.leaf && node.children) { %>
+                        <span class="vt-toggle expanded">▼</span>
+                      <% } else { %>
+                        <span class="vt-dot"></span>
+                      <% } %>
+                      <span class="vt-label" ondblclick="editTreeLabel(this)" title="双击改文字"><%= node.name %></span>
+                    </div>
+                    <% if (node.children && node.children.length > 0) { %>
+                      <div class="vt-children">
+                        <% node.children.forEach(child => { %><% renderTree(child, depth + 1); %><% }) %>
+                      </div>
+                    <% } %>
+                  </div>
+                <% } %>
+                <div class="vt-tree"><% renderTree(analysis.mindmap, 0); %></div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- 学习笔记 -->
+          <div class="vs-panel">
+            <div class="vp-header" onclick="toggleVp('vpNoteBody')">
+              <span data-zh="📝 笔记" data-en="📝 Notes">📝 笔记</span>
+              <span class="vp-toggle">▼</span>
+            </div>
+            <div class="vp-body" id="vpNoteBody">
+              <textarea id="quickNote" class="vs-note-input" rows="4" placeholder="记录学习心得…" data-zh="记录学习心得…" data-en="Record your learning thoughts..."><%= note ? (note.summary || '') : '' %></textarea>
+              <div class="vs-note-actions">
+                <select id="noteStatus" class="vs-note-select">
+                  <option value="watching" <%= note && note.status === 'watching' ? 'selected' : '' %> data-zh="▶️ 学习中" data-en="▶️ Learning">▶️ 学习中</option>
+                  <option value="completed" <%= note && note.status === 'completed' ? 'selected' : '' %> data-zh="✅ 学完了" data-en="✅ Completed">✅ 学完了</option>
+                  <option value="planned" <%= note && note.status === 'planned' ? 'selected' : '' %> data-zh="📋 计划学" data-en="📋 Planned">📋 计划学</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="saveQuickNote()" data-zh="保存" data-en="Save">保存</button>
+              </div>
+              <% if (note) { %><a href="/study/edit/<%= note.id %>" class="vp-note-edit-link" data-zh="编辑完整笔记 →" data-en="Edit full notes →">编辑完整笔记 →</a><% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let noteId = <%= note ? note.id : 'null' %>;
+let videoId = <%= video.id %>;
+
+function toggleVp(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.toggle('collapsed');
+    const t = el.parentElement.querySelector('.vp-toggle');
+    if (t) t.textContent = el.classList.contains('collapsed') ? '▶' : '▼';
+  }
+}
+
+function toggleTree(el) {
+  const wrap = el.parentElement.querySelector('.vt-children');
+  if (!wrap) return;
+  const hidden = wrap.style.display === 'none';
+  wrap.style.display = hidden ? '' : 'none';
+  const tog = el.querySelector('.vt-toggle');
+  if (tog) tog.classList.toggle('expanded', hidden);
+}
+
+function editTreeLabel(el) {
+  if (el.contentEditable === 'true') return;
+  const old = el.textContent;
+  el.contentEditable = 'true';
+  el.classList.add('editing');
+  el.focus();
+  el.onblur = () => { el.contentEditable = 'false'; el.classList.remove('editing'); el.textContent = el.textContent.trim() || old; };
+  el.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } };
+}
+
+function toggleNote() {
+  toggleVp('vpNoteBody');
+  setTimeout(() => document.getElementById('quickNote')?.focus(), 100);
+}
+
+function saveQuickNote() {
+  const c = document.getElementById('quickNote')?.value?.trim() || '';
+  const s = document.getElementById('noteStatus')?.value || 'watching';
+  const t = '笔记：<%= video.title.replace(/'/g, "\\'") %>';
+  fetch('/study/save', {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+    body: 'id='+(noteId||'')+'&video_id='+videoId+'&title='+encodeURIComponent(t)+'&summary='+encodeURIComponent(c)+'&status='+s+'&rating=0'
+  }).then(() => { alert('✅ 已保存'); }).catch(() => alert('❌ 保存失败'));
+}
+</script>
+
+<style>
+/* 树形思维导图 */
+.vt-tree { padding: 4px 0; }
+.vt-node { padding-left: calc(var(--depth,0) * 22px); }
+.vt-row {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 6px; border-radius: 4px; cursor: default;
+  transition: background 0.15s;
+}
+.vt-row:hover { background: rgba(255,255,255,0.04); }
+.vt-toggle {
+  font-size: 0.55rem; color: #999; width: 14px; flex-shrink: 0;
+  cursor: pointer; transition: transform 0.15s;
+}
+.vt-toggle.expanded { transform: rotate(0deg); }
+.vt-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #888; flex-shrink: 0; margin: 0 4.5px;
+}
+.vt-label {
+  font-size: 0.82rem; color: var(--text); padding: 1px 4px; flex: 1;
+  border-radius: 3px; cursor: pointer;
+}
+.vt-label:hover { background: rgba(255,255,255,0.06); }
+.vt-label.editing { background: var(--bg-card); border: 1px solid var(--primary); outline: none; }
+.vt-children { margin: 1px 0; }
+
+/* 左侧填充要点 */
+.vs-side-points {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+}
+.vs-side-point {
+  font-size: 0.78rem; color: var(--text-muted);
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg-card);
+}
+</style>
+
+<%- include('partials/footer') %>

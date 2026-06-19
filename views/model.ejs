@@ -1,0 +1,58 @@
+<%- include('partials/header') %>
+
+<section class="page-header" style="--page-color: <%= model.color %>">
+  <div class="container">
+    <h1 class="page-title"><%= model.icon %> <%= model.name %></h1>
+    <p class="page-desc"><%= model.company ? model.company + ' · ' : '' %><%= model.description || '' %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <% if (videos.length === 0) { %>
+      <div class="empty-state">
+        <span class="empty-icon">📭</span>
+        <h3 data-zh="暂无视频" data-en="No videos">暂无视频</h3>
+        <p data-zh="该模型下还没有收录视频，敬请期待" data-en="No videos under this model yet, stay tuned">该模型下还没有收录视频，敬请期待</p>
+        <a href="/" class="btn btn-primary" data-zh="返回首页" data-en="Back to Home">返回首页</a>
+      </div>
+    <% } else { %>
+      <div class="video-grid">
+        <% videos.forEach(v => { %>
+          <a href="/video/<%= v.id %>" class="video-card">
+            <div class="video-thumb">
+              <% if (v.thumbnail) { %>
+                <img src="<%= v.thumbnail %>" alt="<%= v.title %>" loading="lazy" referrerpolicy="no-referrer">
+              <% } else { %>
+                <div class="video-thumb-placeholder" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:linear-gradient(135deg,#6366f1,#4f46e5)"><span style="font-size:2rem">🎬</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.2);padding:1px 8px;border-radius:6px"><%= v.platform || '视频' %></span></div>
+              <% } %>
+              <% if (v.duration) { %><span class="video-duration"><%= v.duration %></span><% } %>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title"><%= v.title %></h3>
+              <div class="video-meta">
+                <span class="video-category"><%= v.category_icon || '📂' %> <%= v.category_name || '未分类' %></span>
+              </div>
+              <div class="video-stats">
+                <span>👁️ <%= v.views || 0 %></span>
+                <span>📅 <%= new Date(v.created_at).toLocaleDateString('zh-CN') %></span>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (page > 1) { %><a href="?page=<%= page - 1 %>" class="page-btn" data-zh="← 上一页" data-en="← Previous">← 上一页</a><% } %>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>" class="page-btn <%= i === page ? 'active' : '' %>"><%= i %></a>
+          <% } %>
+          <% if (page < totalPages) { %><a href="?page=<%= page + 1 %>" class="page-btn" data-zh="下一页 →" data-en="Next →">下一页 →</a><% } %>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

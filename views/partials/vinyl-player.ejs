@@ -1,0 +1,682 @@
+<!-- ===== 黑胶唱片播放器 ===== -->
+<section class="vinyl-section">
+  <div class="vinyl-inner">
+    <!-- Section Header -->
+    <div class="vinyl-header">
+      <h2 class="vinyl-heading" data-zh="🎵 云谦留声机" data-en="🎵 Yunqian Gramophone">🎵 云谦留声机</h2>
+      <span class="vinyl-time" id="vinylClock">20:24</span>
+    </div>
+
+    <div class="vinyl-body">
+      <!-- Turntable -->
+      <div class="turntable-wrap">
+        <div class="turntable">
+          <div class="tt-base"></div>
+          <div class="vinyl" id="vinylDisc">
+            <div class="vinyl-label">
+              <div class="vl-icon">🎶</div>
+              <div class="vl-song" id="labelSong" data-zh="下枫槎谢氏" data-en="Fengcha Xie">下枫槎谢氏</div>
+            </div>
+            <div class="vinyl-spindle"></div>
+          </div>
+          <div class="tonearm" id="tonearm">
+            <div class="pivot"></div>
+            <div class="arm-tube"><div class="needle"></div></div>
+          </div>
+        </div>
+
+        <!-- Now Playing -->
+        <div class="now-playing">
+          <div class="np-title" id="nowTitle" data-zh="—— 暂无播放 ——" data-en="—— Not Playing ——">—— 暂无播放 ——</div>
+          <div class="np-artist" id="nowArtist" data-zh="请从下方选择歌曲" data-en="Select a song below">请从下方选择歌曲</div>
+        </div>
+      </div>
+
+      <!-- Playlist -->
+      <div class="playlist-wrap">
+        <div class="pl-header">
+          <span data-zh="📀 音乐库" data-en="📀 Music Library">📀 音乐库</span>
+          <span class="pl-count" id="songCount" data-zh="0 首" data-en="0 songs">0 首</span>
+        </div>
+        <div class="pl-items" id="playlistItems"></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="vinyl-controls">
+      <div class="progress-area">
+        <span class="pr-time" id="curTime">0:00</span>
+        <div class="pr-bar-wrap" id="progressWrap">
+          <div class="pr-bar-fill" id="progressFill"></div>
+        </div>
+        <span class="pr-time" id="durTime">0:00</span>
+      </div>
+
+      <div class="ctrl-buttons">
+        <button class="ctrl-btn" onclick="prevTrack()" title="上一首">⏮</button>
+        <button class="ctrl-btn ctrl-play" id="playBtn" onclick="togglePlay()">▶</button>
+        <button class="ctrl-btn" onclick="nextTrack()" title="下一首">⏭</button>
+      </div>
+
+      <div class="volume-area">
+        <span class="vol-icon">🔈</span>
+        <input type="range" id="volRange" min="0" max="1" step="0.05" value="0.7">
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ===== 黑胶唱片播放器 ===== */
+.vinyl-section {
+  padding: 50px 24px 60px;
+  display: flex;
+  justify-content: center;
+  background: #faf7f2;
+  position: relative;
+  z-index: 3;
+}
+[data-style="organic"] .vinyl-section { background: #faf7f2; }
+[data-style="brutalism"] .vinyl-section { background: #f5f0e8; }
+[data-style="magazine"] .vinyl-section { background: #faf8f5; }
+
+.vinyl-inner {
+  width: 100%;
+  max-width: 960px;
+}
+
+/* Header */
+.vinyl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e8ddd0;
+}
+.vinyl-heading {
+  font-family: 'Georgia','Noto Serif SC','Times New Roman',serif;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: #3d3229;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+}
+.vinyl-time {
+  font-size: 0.75rem;
+  color: #b0a090;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Body: turntable + playlist */
+.vinyl-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .vinyl-body { flex-direction: row; align-items: flex-start; justify-content: center; gap: 40px; }
+  .playlist-wrap { flex: 1; min-width: 240px; max-width: 360px; margin-top: 10px; }
+}
+
+/* ===== Turntable ===== */
+.turntable-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.turntable {
+  position: relative;
+  width: min(320px, 80vw);
+  height: min(320px, 80vw);
+}
+
+.tt-base {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fcf8f2, #f5ede0 50%, #efe5d5);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  border: 1px solid #d4c8b8;
+}
+
+/* Vinyl */
+.vinyl {
+  position: absolute;
+  top: 18px; left: 18px;
+  right: 18px; bottom: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #1a1a1a 0%, #111 15%, #0d0d0d 30%, #111 50%, #0a0a0a 70%, #111 100%);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  animation: none;
+  transition: all 0.3s;
+  overflow: hidden;
+}
+.vinyl.playing { animation: vinylSpin 1.8s linear infinite; }
+.vinyl.paused { animation-play-state: paused; }
+@keyframes vinylSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.vinyl::before {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow:
+    inset 0 0 0 5px rgba(255,255,255,0.02),
+    inset 0 0 0 15px rgba(255,255,255,0.015),
+    inset 0 0 0 25px rgba(255,255,255,0.01),
+    inset 0 0 0 40px rgba(255,255,255,0.008),
+    inset 0 0 0 55px rgba(255,255,255,0.005),
+    inset 0 0 0 70px rgba(255,255,255,0.005);
+}
+
+.vinyl-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 38%; height: 38%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c41e3a, #8a1528);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  padding: 10%;
+  text-align: center;
+  color: #f5e6c8;
+  font-size: clamp(0.45rem, 1.2vw, 0.6rem);
+  line-height: 1.4;
+}
+.vl-icon { font-size: clamp(0.8rem, 2vw, 1.2rem); margin-bottom: 2px; }
+.vl-song {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  font-size: clamp(0.4rem, 1vw, 0.55rem);
+}
+.vinyl-spindle {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #aaa, #444);
+  z-index: 2;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Tonearm */
+.tonearm {
+  position: absolute;
+  top: -20px; right: -10px;
+  width: 160px;
+  height: 180px;
+  z-index: 10;
+  transform-origin: 28px 28px;
+  transition: transform 0.9s cubic-bezier(0.34, 1.2, 0.64, 1);
+  pointer-events: none;
+}
+.tonearm .pivot {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #bbb, #888);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2);
+  z-index: 2;
+}
+.tonearm .pivot::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #bbb, #555);
+}
+.tonearm .arm-tube {
+  position: absolute;
+  top: 22px; right: 18px;
+  width: 110px; height: 4px;
+  background: linear-gradient(90deg, #888, #555 60%, #444);
+  transform-origin: 100% 50%;
+  transform: rotate(-15deg);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.tonearm .arm-tube::after {
+  content: '';
+  position: absolute;
+  left: -5px; top: -8px;
+  width: 10px; height: 20px;
+  background: linear-gradient(180deg, #777, #555);
+  border-radius: 3px 3px 1px 1px;
+}
+.tonearm .needle {
+  position: absolute;
+  left: -6px; top: 6px;
+  width: 2px; height: 14px;
+  background: linear-gradient(180deg, #aaa, #ccc);
+  border-radius: 1px;
+  transform: rotate(5deg);
+}
+.tonearm .needle::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: -1px;
+  width: 3px; height: 3px;
+  background: #ddd;
+  border-radius: 50%;
+}
+
+/* Now Playing */
+.now-playing {
+  text-align: center;
+  margin: 12px 0 0;
+  min-height: 44px;
+}
+.np-title {
+  font-family: 'Georgia','Noto Serif SC','Times New Roman',serif;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  color: #3d3229;
+  letter-spacing: 0.08em;
+}
+.np-artist {
+  font-size: 0.7rem;
+  color: #b0a090;
+  margin-top: 2px;
+  letter-spacing: 0.08em;
+}
+
+/* ===== Playlist ===== */
+.playlist-wrap {
+  width: 100%;
+  max-width: 540px;
+}
+.pl-header {
+  font-size: 0.65rem;
+  color: #b0a090;
+  letter-spacing: 0.12em;
+  padding: 0 4px 8px;
+  border-bottom: 1px solid rgba(180,150,100,0.06);
+  display: flex;
+  justify-content: space-between;
+}
+.pl-count { color: rgba(180,150,100,0.15); }
+
+.pl-items {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.pl-items::-webkit-scrollbar { width: 3px; }
+.pl-items::-webkit-scrollbar-thumb { background: rgba(196,30,58,0.15); border-radius: 2px; }
+.pl-items::-webkit-scrollbar-track { background: transparent; }
+
+.pl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pl-item:hover { background: rgba(0,0,0,0.02); }
+.pl-item.active { background: rgba(196,30,58,0.06); border-left: 2px solid #c41e3a; }
+.pl-item .pi-num {
+  font-size: 0.55rem;
+  color: #d0c8b8;
+  min-width: 18px;
+  text-align: right;
+}
+.pl-item .pi-info { flex: 1; min-width: 0; }
+.pl-item .pi-name {
+  font-size: 0.75rem;
+  color: #4a3a28;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pl-item.active .pi-name { color: #c41e3a; }
+.pl-item .pi-desc {
+  font-size: 0.55rem;
+  color: #b0a090;
+  margin-top: 1px;
+}
+.pl-item .pi-dur {
+  font-size: 0.55rem;
+  color: #d0c8b8;
+  min-width: 32px;
+  text-align: right;
+}
+.pl-item.active .pi-dur { color: #c41e3a; }
+.pl-empty {
+  text-align: center;
+  padding: 24px 16px;
+  color: #d0c8b8;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+.pl-empty .pe-icon { font-size: 1.6rem; margin-bottom: 6px; opacity: 0.3; }
+
+/* ===== Controls ===== */
+.vinyl-controls {
+  width: 100%;
+  max-width: 500px;
+  margin: 16px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-area {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pr-time {
+  font-size: 0.55rem;
+  color: #b0a090;
+  min-width: 28px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.pr-bar-wrap {
+  flex: 1;
+  height: 3px;
+  background: rgba(196,30,58,0.08);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.pr-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c41e3a, #c41e3a);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+.pr-bar-wrap:hover { height: 5px; }
+
+.ctrl-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.ctrl-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid #d4c8b8;
+  background: #ffffff;
+  color: #8a7030;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Serif SC', serif;
+}
+.ctrl-btn:hover {
+  background: #f5ede0;
+  border-color: #c41e3a;
+  color: #c41e3a;
+}
+.ctrl-play {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #c41e3a, #a81830);
+  border-color: #c41e3a;
+  color: #fff;
+  font-size: 1.1rem;
+}
+.ctrl-play:hover {
+  background: linear-gradient(135deg, #d42a48, #b81e38);
+  box-shadow: 0 0 20px rgba(196,30,58,0.3);
+}
+
+.volume-area {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.vol-icon { font-size: 0.7rem; color: #b0a090; }
+.volume-area input[type=range] {
+  width: 70px;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(196,30,58,0.1);
+  border-radius: 2px;
+  outline: none;
+}
+.volume-area input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #c41e3a;
+  cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .vinyl-section { padding: 30px 12px 40px; }
+  .turntable { width: 70vw; height: 70vw; }
+  .tonearm { width: 90px; height: 100px; top: -8px; }
+  .tonearm .arm-tube { width: 60px; }
+  .tonearm .pivot { width: 24px; height: 24px; top: 6px; right: 6px; }
+  .tonearm .pivot::after { width: 10px; height: 10px; }
+  .vinyl-label { font-size: 0.35rem; }
+  .now-playing { margin: 8px 0 0; }
+  .ctrl-btn { width: 28px; height: 28px; font-size: 0.75rem; }
+  .ctrl-play { width: 36px; height: 36px; font-size: 0.95rem; }
+  .ctrl-buttons { gap: 10px; }
+  .volume-area input[type=range] { width: 50px; }
+  .pl-items { max-height: 160px; }
+  .pl-item .pi-name { font-size: 0.7rem; }
+}
+</style>
+
+<script>
+(function() {
+  var audio = new Audio();
+  audio.volume = 0.7;
+  var library = [];
+  var currentIndex = -1;
+  var isPlaying = false;
+
+  // ===== Clock =====
+  function updateClock() {
+    var now = new Date();
+    var h = now.getHours().toString().padStart(2,'0');
+    var m = now.getMinutes().toString().padStart(2,'0');
+    var el = document.getElementById('vinylClock');
+    if (el) el.textContent = h + ':' + m;
+  }
+  updateClock();
+  setInterval(updateClock, 5000);
+
+  // ===== Init Library =====
+  function initLibrary() {
+    library = [];
+    // --- Add your songs here ---
+    // library.push({ file: '/music/your-song.mp3', name: 'Song Name', artist: 'Artist', duration: '?' });
+
+    library.push({ file: '/music/1.mp3', name: '萨哈克回家', artist: '', duration: '?' });
+    library.push({ file: '/music/liangzhu.mp3', name: '梁祝 (钢琴版)', artist: 'Wyatt Anderson / 中国民乐', duration: '?' });
+    // --- Add more songs above ---
+
+    renderPlaylist();
+  }
+
+  function renderPlaylist() {
+    var container = document.getElementById('playlistItems');
+    var countEl = document.getElementById('songCount');
+    if (!container) return;
+
+    if (!library.length) {
+      container.innerHTML = '<div class="pl-empty"><div class="pe-icon">🎵</div><p data-zh="暂无音乐" data-en="No music yet">暂无音乐</p><p style="font-size:0.6rem;margin-top:4px;" data-zh="请将音乐文件放到 /music 目录下" data-en="Add music files to /music folder">请将音乐文件放到 /music 目录下</p></div>';
+      if (countEl) countEl.textContent = '0 首';
+      return;
+    }
+
+    if (countEl) countEl.textContent = library.length + ' 首';
+    var html = '';
+    library.forEach(function(song, i){
+      var active = i === currentIndex ? ' active' : '';
+      html += '<div class="pl-item' + active + '" onclick="playTrack(' + i + ')">';
+      html += '<span class="pi-num">' + (i+1) + '</span>';
+      html += '<div class="pi-info"><div class="pi-name">' + esc(song.name) + '</div><div class="pi-desc">' + esc(song.artist || '') + '</div></div>';
+      html += '<span class="pi-dur">' + (song.duration || '') + '</span>';
+      html += '</div>';
+    });
+    container.innerHTML = html;
+
+    // Apply current language
+    if (window.applyLang) {
+      var lang = localStorage.getItem('pst-lang') || 'zh';
+      window.applyLang(lang);
+    }
+  }
+
+  // Expose functions globally
+  window.playTrack = function(index) {
+    if (index < 0 || index >= library.length) return;
+    var song = library[index];
+    if (!song || !song.file) return;
+    currentIndex = index;
+    audio.src = song.file;
+    audio.load();
+    audio.play().then(function(){ isPlaying = true; updateUI(); }).catch(function(){ isPlaying = false; updateUI(); });
+  };
+
+  window.togglePlay = function() {
+    if (currentIndex < 0 || !library[currentIndex] || !library[currentIndex].file) return;
+    if (audio.paused) {
+      audio.play().then(function(){ isPlaying = true; updateUI(); }).catch(function(){});
+    } else {
+      audio.pause(); isPlaying = false; updateUI();
+    }
+  };
+
+  window.prevTrack = function() {
+    if (!library.length) return;
+    playTrack(currentIndex - 1 < 0 ? library.length - 1 : currentIndex - 1);
+  };
+
+  window.nextTrack = function() {
+    if (!library.length) return;
+    playTrack(currentIndex + 1 >= library.length ? 0 : currentIndex + 1);
+  };
+
+  window.seekProgress = function(e) {
+    var wrap = document.getElementById('progressWrap');
+    if (!wrap) return;
+    var rect = wrap.getBoundingClientRect();
+    var pct = (e.clientX - rect.left) / rect.width;
+    if (audio.duration) audio.currentTime = pct * audio.duration;
+  };
+
+  // Volume
+  document.getElementById('volRange').addEventListener('input', function() {
+    audio.volume = parseFloat(this.value);
+  });
+
+  // Progress bar click
+  document.getElementById('progressWrap').addEventListener('click', function(e) {
+    if (window.seekProgress) window.seekProgress(e);
+  });
+
+  // ===== UI =====
+  function updateUI() {
+    var vinyl = document.getElementById('vinylDisc');
+    var tonearm = document.getElementById('tonearm');
+    var playBtn = document.getElementById('playBtn');
+    var titleEl = document.getElementById('nowTitle');
+    var artistEl = document.getElementById('nowArtist');
+    var labelEl = document.getElementById('labelSong');
+    if (!vinyl || !tonearm || !playBtn) return;
+
+    if (isPlaying && !audio.paused) {
+      vinyl.classList.add('playing'); vinyl.classList.remove('paused');
+      playBtn.textContent = '⏸';
+      tonearm.style.transition = 'transform 0.5s ease';
+      tonearm.style.transform = 'translateY(-18px) rotate(15deg)';
+      clearTimeout(window._armTimer);
+      window._armTimer = setTimeout(function(){
+        tonearm.style.transition = 'transform 0.35s ease';
+        tonearm.style.transform = 'translateY(0) rotate(15deg)';
+      }, 550);
+    } else {
+      vinyl.classList.add('paused'); vinyl.classList.remove('playing');
+      playBtn.textContent = '▶';
+      tonearm.style.transition = 'transform 0.3s ease';
+      tonearm.style.transform = 'translateY(-18px) rotate(15deg)';
+      clearTimeout(window._armTimer);
+      window._armTimer = setTimeout(function(){
+        tonearm.style.transition = 'transform 0.5s ease';
+        tonearm.style.transform = 'translateY(-18px) rotate(-45deg)';
+      }, 350);
+    }
+
+    if (currentIndex >= 0 && library[currentIndex]) {
+      var song = library[currentIndex];
+      if (titleEl) titleEl.textContent = song.name || '——';
+      if (artistEl) artistEl.textContent = song.artist || '';
+      if (labelEl) labelEl.textContent = song.name ? song.name.slice(0,8) : '下枫槎谢氏';
+    }
+    renderPlaylist();
+  }
+
+  // Audio events
+  audio.addEventListener('timeupdate', function(){
+    var fill = document.getElementById('progressFill');
+    var cur = document.getElementById('curTime');
+    var dur = document.getElementById('durTime');
+    if (audio.duration && fill) {
+      fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      if (cur) cur.textContent = formatTime(audio.currentTime);
+      if (dur) dur.textContent = formatTime(audio.duration);
+    }
+  });
+  audio.addEventListener('ended', function(){ nextTrack(); });
+  audio.addEventListener('play', function(){ isPlaying = true; updateUI(); });
+  audio.addEventListener('pause', function(){ isPlaying = false; updateUI(); });
+
+  // Utility
+  function formatTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function esc(t) {
+    if (!t) return '';
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Init tonearm position
+  var ta = document.getElementById('tonearm');
+  if (ta) {
+    ta.style.transition = 'none';
+    ta.style.transform = 'translateY(-18px) rotate(-45deg)';
+    ta.offsetHeight;
+    ta.style.transition = 'transform 0.9s cubic-bezier(0.34, 1.2, 0.64, 1)';
+  }
+
+  initLibrary();
+})();
+</script>

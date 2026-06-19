@@ -1,0 +1,201 @@
+<%- include('partials/header') %>
+
+<section class="mag-gallery">
+  <div class="mag-header">
+    <div class="mag-headline">
+      <span class="mag-section-label">PORTFOLIO</span>
+      <h1 class="mag-title" data-zh="个人影集" data-en="Personal Gallery">个人影集</h1>
+      <p class="mag-sub" data-zh="记录生活中的每一刻" data-en="Capture every moment of life">记录生活中的每一刻</p>
+    </div>
+  </div>
+
+  <% if (albums.length === 0) { %>
+    <div class="container" style="padding:60px 20px;text-align:center;color:var(--text-muted)">
+      <p style="font-size:1.2rem;margin-bottom:12px">📸</p>
+      <p data-zh="暂无影集" data-en="No albums yet">暂无影集</p>
+    </div>
+  <% } else { %>
+    <div class="mag-grid">
+      <%
+        // 交替布局：第一张大图，后续混排
+        albums.forEach(function(a, idx) {
+          var isFirst = idx === 0;
+          var isEven = idx % 2 === 0;
+      %>
+      <a href="/gallery/<%= a.id %>" class="mag-card mag-<%= isFirst ? 'featured' : (isEven ? 'tall' : 'wide') %>">
+        <div class="mag-img-wrap">
+          <% if (albumCovers[a.id]) { %>
+            <img src="<%= albumCovers[a.id] %>" alt="<%= a.title %>" loading="lazy">
+          <% } else { %>
+            <div class="mag-img-placeholder">📸</div>
+          <% } %>
+        </div>
+        <div class="mag-overlay">
+          <div class="mag-card-info">
+            <h2 class="mag-card-title"><%= a.title %></h2>
+            <div class="mag-card-meta">
+              <% if (a.year) { %><span><%= a.year %></span><% } %>
+              <span data-zh="<%= a.photo_count || 0 %> 张" data-en="<%= a.photo_count || 0 %> photos"><%= a.photo_count || 0 %> 张</span>
+            </div>
+            <% if (a.description) { %><p class="mag-card-desc"><%= a.description %></p><% } %>
+          </div>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@300;400;600&display=swap');
+
+.mag-gallery {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 头部 */
+.mag-header {
+  padding: 30px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.mag-headline { max-width: 600px; }
+.mag-section-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 8px;
+}
+.mag-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px;
+  line-height: 1.1;
+}
+.mag-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* 杂志网格 */
+.mag-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  grid-auto-flow: dense;
+}
+
+/* 卡片 */
+.mag-card {
+  position: relative;
+  overflow: hidden;
+  text-decoration: none !important;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.mag-featured {
+  grid-column: span 2;
+  grid-row: span 2;
+  aspect-ratio: auto;
+  min-height: 420px;
+}
+.mag-tall {
+  grid-column: span 1;
+  grid-row: span 2;
+  min-height: 360px;
+}
+.mag-wide {
+  grid-column: span 2;
+  grid-row: span 1;
+  aspect-ratio: 2/1;
+  min-height: 200px;
+}
+
+.mag-img-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.mag-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.mag-card:hover .mag-img-wrap img {
+  transform: scale(1.05);
+}
+.mag-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: var(--bg);
+}
+
+.mag-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%);
+  display: flex;
+  align-items: flex-end;
+  padding: 24px;
+  transition: background 0.3s;
+}
+.mag-card:hover .mag-overlay {
+  background: linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.8) 100%);
+}
+
+.mag-card-info { width: 100%; }
+.mag-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+.mag-featured .mag-card-title {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+}
+.mag-card-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+  display: flex;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.mag-card-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.6);
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .mag-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .mag-featured { grid-column: span 2; grid-row: span 1; min-height: 200px; }
+  .mag-tall { grid-column: span 1; grid-row: span 1; min-height: 160px; }
+  .mag-wide { grid-column: span 2; aspect-ratio: auto; min-height: 140px; }
+  .mag-header { padding: 20px 0 24px; margin-bottom: 20px; }
+}
+</style>
+
+<%- include('partials/footer') %>

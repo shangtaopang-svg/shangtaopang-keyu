@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : '管理后台' %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- 侧边栏 -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/dashboard" class="sidebar-logo">shangtaopang-可与</a>
+        <span class="sidebar-subtitle" data-zh="后台管理" data-en="Admin Panel">后台管理</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="sidebar-link">📊 <span data-zh="仪表盘" data-en="Dashboard">仪表盘</span></a>
+        <a href="/admin/videos" class="sidebar-link">🎬 <span data-zh="视频管理" data-en="Videos">视频管理</span></a>
+        <a href="/admin/categories" class="sidebar-link">📂 <span data-zh="分类管理" data-en="Categories">分类管理</span></a>
+        <a href="/admin/subcategories" class="sidebar-link">📎 <span data-zh="子分类管理" data-en="Subcategories">子分类管理</span></a>
+        <a href="/admin/models" class="sidebar-link">🤖 <span data-zh="AI模型" data-en="AI Models">AI模型</span></a>
+        <a href="/admin/bloggers" class="sidebar-link">👤 <span data-zh="博主管理" data-en="Bloggers">博主管理</span></a>
+        <a href="/admin/albums" class="sidebar-link">📸 <span data-zh="相册管理" data-en="Albums">相册管理</span></a>
+        <a href="/admin/travel" class="sidebar-link">🗺️ <span data-zh="出行管理" data-en="Travel">出行管理</span></a>
+	        <a href="/admin/messages" class="sidebar-link">💬 <span data-zh="留言管理" data-en="Messages">留言管理</span></a>
+        <a href="/admin/profile" class="sidebar-link">🔑 <span data-zh="修改密码" data-en="Change Password">修改密码</span></a>
+        <hr class="sidebar-divider">
+        <a href="/" class="sidebar-link" target="_blank">🌐 <span data-zh="查看网站" data-en="View Site">查看网站</span></a>
+        <a href="/admin/logout" class="sidebar-link sidebar-logout">🚪 <span data-zh="退出登录" data-en="Logout">退出登录</span></a>
+      </nav>
+      <div class="sidebar-user">
+        👤 <%= admin.username %>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="admin-main">

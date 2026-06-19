@@ -1,0 +1,76 @@
+<%- include('partials/header') %>
+
+<section class="blogger-profile-section">
+  <div class="container">
+    <div class="blogger-profile">
+      <div class="blogger-profile-avatar">
+        <% if (blogger.avatar) { %>
+          <img src="<%= blogger.avatar %>" alt="<%= blogger.name %>">
+        <% } else { %>
+          <div class="blogger-avatar-placeholder-lg"><%= blogger.name.charAt(0) %></div>
+        <% } %>
+      </div>
+      <div class="blogger-profile-info">
+        <h1 class="blogger-profile-name"><%= blogger.name %></h1>
+        <div class="blogger-profile-meta">
+          <span class="platform-badge <%= blogger.platform %>">
+            <%= blogger.platform === 'bilibili' ? '📺 B站' : blogger.platform === 'youtube' ? '▶️ YouTube' : blogger.platform === 'xiaohongshu' ? '📕 小红书' : blogger.platform === 'douyin' ? '🎵 抖音' : blogger.platform === 'twitter' ? '🐦 X/Twitter' : '🌐 ' + (blogger.platform || '其他') %>
+          </span>
+          <span data-zh="🎬 <%= videos.length %> 个视频" data-en="🎬 <%= videos.length %> videos">🎬 <%= videos.length %> 个视频</span>
+          <% if (blogger.follower_count > 0) { %><span data-zh="👥 <%= blogger.follower_count %> 粉丝" data-en="👥 <%= blogger.follower_count %> followers">👥 <%= blogger.follower_count %> 粉丝</span><% } %>
+          <% if (blogger.last_sync_at) { %><span data-zh="🔄 最后同步: <%= new Date(blogger.last_sync_at).toLocaleDateString('zh-CN') %>" data-en="🔄 Last synced: <%= new Date(blogger.last_sync_at).toLocaleDateString('zh-CN') %>">🔄 最后同步: <%= new Date(blogger.last_sync_at).toLocaleDateString('zh-CN') %></span><% } %>
+        </div>
+        <% if (blogger.bio) { %>
+          <p class="blogger-profile-bio"><%= blogger.bio %></p>
+        <% } %>
+        <% if (blogger.homepage_url) { %>
+          <a href="<%= blogger.homepage_url %>" target="_blank" rel="noopener" class="btn btn-outline btn-sm" data-zh="🌐 博主主页 ↗" data-en="🌐 Blogger Homepage ↗">🌐 博主主页 ↗</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <% if (videos.length === 0) { %>
+      <div class="empty-state">
+        <span class="empty-icon">📭</span>
+        <h3 data-zh="暂无视频" data-en="No videos">暂无视频</h3>
+        <p data-zh="该博主还没有收录视频" data-en="This blogger has no videos yet">该博主还没有收录视频</p>
+        <a href="/bloggers" class="btn btn-primary" data-zh="浏览更多博主" data-en="Browse more bloggers">浏览更多博主</a>
+      </div>
+    <% } else { %>
+      <h2 class="section-title" style="margin-bottom:24px" data-zh="🎬 全部视频" data-en="🎬 All Videos">🎬 全部视频</h2>
+      <div class="video-grid">
+        <% videos.forEach(v => { %>
+          <a href="/video/<%= v.id %>" class="video-card">
+            <div class="video-thumb">
+              <% if (v.thumbnail) { %>
+                <img src="<%= v.thumbnail %>" alt="<%= v.title %>" loading="lazy" referrerpolicy="no-referrer">
+              <% } else { %>
+                <div class="video-thumb-placeholder" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:linear-gradient(135deg,#6366f1,#4f46e5)"><span style="font-size:2rem">🎬</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.2);padding:1px 8px;border-radius:6px"><%= v.platform || '视频' %></span></div>
+              <% } %>
+              <% if (v.duration) { %><span class="video-duration"><%= v.duration %></span><% } %>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title"><%= v.title %></h3>
+              <div class="video-meta">
+                <span class="video-category"><%= v.category_icon || '📂' %> <%= v.category_name || '未分类' %></span>
+                <% if (v.model_name) { %>
+                  <span class="video-model"><%= v.model_icon || '🤖' %> <%= v.model_name %></span>
+                <% } %>
+              </div>
+              <div class="video-stats">
+                <span>👁️ <%= v.views || 0 %></span>
+                <span>📅 <%= new Date(v.created_at).toLocaleDateString('zh-CN') %></span>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

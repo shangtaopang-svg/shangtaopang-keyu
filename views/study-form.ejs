@@ -1,0 +1,75 @@
+<%- include('partials/header') %>
+
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title"><%= note ? '✏️ 编辑笔记' : '📝 新建学习笔记' %></h1>
+    <p class="page-desc" data-zh="记录你的学习心得，追踪掌握进度" data-en="Record your learning insights and track your mastery progress">记录你的学习心得，追踪掌握进度</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="study-form-container">
+      <form method="POST" action="/study/save" class="study-form">
+        <% if (note) { %><input type="hidden" name="id" value="<%= note.id %>"><% } %>
+
+        <div class="form-group">
+          <label for="title" data-zh="笔记标题 *" data-en="Note Title *">笔记标题 *</label>
+          <input type="text" id="title" name="title" class="form-input" value="<%= note ? note.title : (video ? '学习笔记：' + video.title : '') %>" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="video_id" data-zh="关联视频（选填）" data-en="Related Video (Optional)">关联视频（选填）</label>
+            <select id="video_id" name="video_id" class="form-input">
+              <option value="" data-zh="不关联" data-en="No Video">不关联</option>
+              <% videos.forEach(v => { %>
+                <option value="<%= v.id %>" <%= (video && video.id == v.id) || (note && note.video_id == v.id) ? 'selected' : '' %>><%= v.title.slice(0, 50) %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="status" data-zh="学习状态" data-en="Learning Status">学习状态</label>
+            <select id="status" name="status" class="form-input">
+              <option value="planned" <%= !note || note.status === 'planned' ? 'selected' : '' %>>📋 <span data-zh="计划学习" data-en="Planned">计划学习</span></option>
+              <option value="watching" <%= note && note.status === 'watching' ? 'selected' : '' %>>▶️ <span data-zh="正在学习" data-en="In Progress">正在学习</span></option>
+              <option value="completed" <%= note && note.status === 'completed' ? 'selected' : '' %>>✅ <span data-zh="已完成" data-en="Completed">已完成</span></option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="rating" data-zh="评分" data-en="Rating">评分</label>
+            <select id="rating" name="rating" class="form-input">
+              <option value="0" data-zh="未评分" data-en="Not Rated">未评分</option>
+              <% for (let i = 1; i <= 5; i++) { %>
+                <option value="<%= i %>" <%= note && note.rating == i ? 'selected' : '' %>><%= '⭐'.repeat(i) %></option>
+              <% } %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="summary" data-zh="一句话总结" data-en="One-line Summary">一句话总结</label>
+          <input type="text" id="summary" name="summary" class="form-input" value="<%= note ? note.summary : '' %>" placeholder="用一句话概括你从这节课学到了什么" data-zh="一句话总结" data-en="Summarize what you learned from this lesson in one sentence">
+        </div>
+
+        <div class="form-group">
+          <label for="key_points" data-zh="核心要点（每行一个）" data-en="Key Points (One per line)">核心要点（每行一个）</label>
+          <textarea id="key_points" name="key_points" class="form-input form-textarea" rows="5" placeholder="1. ...&#10;2. ...&#10;3. ..." data-zh="核心要点" data-en="Key Points"><%= note ? note.key_points : '' %></textarea>
+          <p class="form-help" data-zh="列出这节课最重要的3-5个知识点，每行一个" data-en="List the 3-5 most important concepts from this lesson, one per line">列出这节课最重要的3-5个知识点，每行一个</p>
+        </div>
+
+        <div class="form-group">
+          <label for="content" data-zh="详细笔记" data-en="Detailed Notes">详细笔记</label>
+          <textarea id="content" name="content" class="form-input form-textarea" rows="10" placeholder="写下你的详细学习笔记、感悟、疑问..." data-zh="详细笔记" data-en="Write your detailed study notes, thoughts, questions..."><%= note ? note.content : '' %></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a href="/study" class="btn btn-outline" data-zh="取消" data-en="Cancel">取消</a>
+          <button type="submit" class="btn btn-primary">💾 <span data-zh="保存笔记" data-en="Save Note">保存笔记</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

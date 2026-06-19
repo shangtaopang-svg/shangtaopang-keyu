@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title" data-zh="👤 博主专栏" data-en="👤 Bloggers">👤 博主专栏</h1>
+    <p class="page-desc" data-zh="关注优质AI内容创作者，一站式学习他们的视频作品" data-en="Follow quality AI content creators and learn from their videos in one place">关注优质AI内容创作者，一站式学习他们的视频作品</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <% if (bloggers.length === 0) { %>
+      <div class="empty-state">
+        <span class="empty-icon">📭</span>
+        <h3 data-zh="暂无博主" data-en="No bloggers">暂无博主</h3>
+        <p data-zh="还没有收录任何博主，敬请期待" data-en="No bloggers have been added yet, stay tuned">还没有收录任何博主，敬请期待</p>
+        <a href="/" class="btn btn-primary" data-zh="返回首页" data-en="Back to Home">返回首页</a>
+      </div>
+    <% } else { %>
+      <div class="blogger-grid">
+        <% bloggers.forEach(b => { %>
+          <a href="/blogger/<%= b.slug %>" class="blogger-card">
+            <div class="blogger-avatar">
+              <% if (b.avatar) { %>
+                <img src="<%= b.avatar %>" alt="<%= b.name %>" loading="lazy">
+              <% } else { %>
+                <div class="blogger-avatar-placeholder"><%= b.name.charAt(0) %></div>
+              <% } %>
+            </div>
+            <div class="blogger-info">
+              <h3 class="blogger-name"><%= b.name %></h3>
+              <span class="blogger-platform <%= b.platform %>">
+                <%= b.platform === 'bilibili' ? '📺 B站' : b.platform === 'youtube' ? '▶️ YouTube' : b.platform === 'xiaohongshu' ? '📕 小红书' : b.platform === 'douyin' ? '🎵 抖音' : b.platform === 'twitter' ? '🐦 X/Twitter' : '🌐 其他' %>
+              </span>
+              <% if (b.description) { %><p class="blogger-desc"><%= b.description %></p><% } %>
+              <div class="blogger-stats">
+                <span data-zh="🎬 <%= b.video_count || 0 %> 个视频" data-en="🎬 <%= b.video_count || 0 %> videos">🎬 <%= b.video_count || 0 %> 个视频</span>
+                <% if (b.follower_count > 0) { %><span data-zh="👥 <%= b.follower_count %> 粉丝" data-en="👥 <%= b.follower_count %> followers">👥 <%= b.follower_count %> 粉丝</span><% } %>
+              </div>
+            </div>
+            <span class="blogger-arrow">→</span>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

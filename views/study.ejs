@@ -1,0 +1,96 @@
+<%- include('partials/header') %>
+
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title">📝 <span data-zh="学习总结" data-en="Study Notes">学习总结</span></h1>
+    <p class="page-desc" data-zh="记录每节课的学习心得，追踪你的AI学习进度" data-en="Record your learning insights from each lesson and track your AI learning progress">记录每节课的学习心得，追踪你的AI学习进度</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <!-- 统计 -->
+    <div class="study-stats">
+      <div class="stat-card-small stat-blue">
+        <span class="stat-num"><%= stats.total %></span>
+        <span class="stat-label" data-zh="全部笔记" data-en="All Notes">全部笔记</span>
+      </div>
+      <div class="stat-card-small stat-yellow">
+        <span class="stat-num"><%= stats.planned %></span>
+        <span class="stat-label" data-zh="计划学习" data-en="Planned">计划学习</span>
+      </div>
+      <div class="stat-card-small stat-orange">
+        <span class="stat-num"><%= stats.watching %></span>
+        <span class="stat-label" data-zh="正在学习" data-en="In Progress">正在学习</span>
+      </div>
+      <div class="stat-card-small stat-green">
+        <span class="stat-num"><%= stats.completed %></span>
+        <span class="stat-label" data-zh="已完成" data-en="Completed">已完成</span>
+      </div>
+      <a href="/study/new" class="btn btn-primary study-add-btn">＋ <span data-zh="新建笔记" data-en="New Note">新建笔记</span></a>
+    </div>
+
+    <!-- 状态筛选 -->
+    <div class="study-filters">
+      <a href="/study" class="filter-btn <%= !filterStatus ? 'active' : '' %>" data-zh="全部" data-en="All">全部</a>
+      <a href="/study?status=planned" class="filter-btn <%= filterStatus === 'planned' ? 'active' : '' %>">📋 <span data-zh="计划学习" data-en="Planned">计划学习</span></a>
+      <a href="/study?status=watching" class="filter-btn <%= filterStatus === 'watching' ? 'active' : '' %>">▶️ <span data-zh="正在学习" data-en="In Progress">正在学习</span></a>
+      <a href="/study?status=completed" class="filter-btn <%= filterStatus === 'completed' ? 'active' : '' %>">✅ <span data-zh="已完成" data-en="Completed">已完成</span></a>
+    </div>
+
+    <!-- 笔记列表 -->
+    <% if (notes.length === 0) { %>
+      <div class="empty-state">
+        <span class="empty-icon">📝</span>
+        <h3 data-zh="还没有学习笔记" data-en="No study notes yet">还没有学习笔记</h3>
+        <p data-zh="开始学习视频后，在这里记录你的学习心得和总结" data-en="After you start watching videos, record your learning insights and summaries here">开始学习视频后，在这里记录你的学习心得和总结</p>
+        <a href="/study/new" class="btn btn-primary">✏️ <span data-zh="写第一篇笔记" data-en="Write Your First Note">写第一篇笔记</span></a>
+      </div>
+    <% } else { %>
+      <div class="study-grid">
+        <% notes.forEach(n => { %>
+          <div class="study-card" style="--status-color: <%= n.status === 'completed' ? '#34d399' : n.status === 'watching' ? '#fb923c' : '#6b7280' %>">
+            <div class="study-card-top">
+              <% if (n.thumbnail) { %>
+                <div class="study-thumb"><img src="<%= n.thumbnail %>" alt="" loading="lazy" referrerpolicy="no-referrer"></div>
+              <% } else { %>
+                <div class="study-thumb study-thumb-placeholder">📄</div>
+              <% } %>
+              <div class="study-card-info">
+                <h3 class="study-note-title"><%= n.title %></h3>
+                <% if (n.video_title) { %>
+                  <div class="study-video-ref">
+                    <span>📺 <%= n.video_title.slice(0, 40) %></span>
+                  </div>
+                <% } %>
+                <div class="study-meta">
+                  <span class="study-status status-<%= n.status %>">
+                    <%= n.status === 'completed' ? '✅ 已完成' : n.status === 'watching' ? '▶️ 正在学习' : '📋 计划学习' %>
+                  </span>
+                  <span class="study-rating">
+                    <% if (n.rating > 0) { %><%= '⭐'.repeat(n.rating) %><% } %>
+                  </span>
+                  <span class="study-date"><%= new Date(n.updated_at).toLocaleDateString('zh-CN') %></span>
+                </div>
+              </div>
+            </div>
+            <% if (n.summary) { %>
+              <p class="study-summary"><%= n.summary.slice(0, 120) %><%= n.summary.length > 120 ? '...' : '' %></p>
+            <% } %>
+            <div class="study-card-actions">
+              <a href="/study/edit/<%= n.id %>" class="btn btn-sm btn-edit" data-zh="编辑" data-en="Edit">编辑</a>
+              <% if (n.video_id) { %>
+                <a href="/video/<%= n.video_id %>" class="btn btn-sm btn-outline" target="_blank" data-zh="看视频" data-en="Watch Video">看视频</a>
+              <% } %>
+              <form method="POST" action="/study/delete/<%= n.id %>" style="display:inline" onsubmit="return confirm('确定删除？')">
+                <button type="submit" class="btn btn-sm btn-danger" data-zh="删除" data-en="Delete">删除</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

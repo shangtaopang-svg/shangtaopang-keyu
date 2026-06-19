@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body class="admin-login-body">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <span class="login-icon" style="font-size:2.4rem">👤</span>
+        <h1 data-zh="shangtaopang-可与管理" data-en="shangtaopang Admin">shangtaopang-可与管理</h1>
+        <p data-zh="请登录以管理内容" data-en="Please log in to manage content">请登录以管理内容</p>
+      </div>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error"><%= error %></div>
+      <% } %>
+      <form method="POST" action="/admin/login" class="login-form">
+        <div class="form-group">
+          <label for="username" data-zh="用户名" data-en="Username">用户名</label>
+          <input type="text" id="username" name="username" class="form-input" placeholder="输入用户名" data-zh-placeholder="输入用户名" data-en-placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label for="password" data-zh="密码" data-en="Password">密码</label>
+          <input type="password" id="password" name="password" class="form-input" placeholder="输入密码" data-zh-placeholder="输入密码" data-en-placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" data-zh="登 录" data-en="Login">登 录</button>
+      </form>
+      <div class="login-footer">
+        <a href="/" data-zh="← 返回首页" data-en="← Back to Home">← 返回首页</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

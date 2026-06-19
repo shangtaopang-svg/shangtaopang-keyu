@@ -1,0 +1,31 @@
+<%- include('../partials/admin-header') %>
+
+<h2 class="admin-page-title">🔑 <span data-zh="修改密码" data-en="Change Password">修改密码</span></h2>
+
+<div class="admin-card" style="max-width:500px">
+  <% if (typeof message !== 'undefined' && message) { %>
+    <div class="alert alert-success"><%= message %></div>
+  <% } %>
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+  <form method="POST" action="/admin/profile" class="admin-form">
+    <div class="form-group">
+      <label for="old_password" data-zh="当前密码" data-en="Current Password">当前密码</label>
+      <input type="password" id="old_password" name="old_password" class="form-input" required>
+    </div>
+    <div class="form-group">
+      <label for="new_password" data-zh="新密码" data-en="New Password">新密码</label>
+      <input type="password" id="new_password" name="new_password" class="form-input" required minlength="6">
+    </div>
+    <div class="form-group">
+      <label for="confirm_password" data-zh="确认新密码" data-en="Confirm New Password">确认新密码</label>
+      <input type="password" id="confirm_password" name="confirm_password" class="form-input" required minlength="6">
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">💾 <span data-zh="修改密码" data-en="Change Password">修改密码</span></button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/admin-footer') %>

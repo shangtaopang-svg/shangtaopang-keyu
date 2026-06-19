@@ -1,0 +1,109 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-toolbar">
+  <h2 class="admin-page-title">📎 <span data-zh="子分类管理" data-en="Subcategory Management">子分类管理</span></h2>
+  <button class="btn btn-primary" onclick="showAddForm()" data-zh="＋ 添加子分类" data-en="＋ Add Subcategory">＋ 添加子分类</button>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="admin-table">
+      <thead>
+        <tr><th data-zh="排序" data-en="Order">排序</th><th data-zh="图标" data-en="Icon">图标</th><th data-zh="名称" data-en="Name">名称</th><th data-zh="所属分类" data-en="Parent Category">所属分类</th><th data-zh="标识" data-en="Slug">标识</th><th data-zh="视频数" data-en="Videos">视频数</th><th data-zh="操作" data-en="Actions">操作</th></tr>
+      </thead>
+      <tbody>
+        <% if (subs.length === 0) { %>
+          <tr><td colspan="7" class="text-center" data-zh="暂无子分类" data-en="No subcategories yet">暂无子分类</td></tr>
+        <% } else { %>
+          <% subs.forEach(s => { %>
+            <tr>
+              <td><%= s.sort_order %></td>
+              <td><span style="font-size:1.3rem"><%= s.icon %></span></td>
+              <td><%= s.name %></td>
+              <td><%= s.category_icon || '' %> <%= s.category_name || '-' %></td>
+              <td><code><%= s.slug %></code></td>
+              <td><%= s.video_count || 0 %></td>
+              <td class="td-actions">
+                <button class="btn btn-sm btn-edit" onclick='editSub(<%= JSON.stringify(s) %>)' data-zh="编辑" data-en="Edit">编辑</button>
+                <form method="POST" action="/admin/subcategories/delete/<%= s.id %>" style="display:inline" onsubmit="return confirm('确定删除？')">
+                  <button type="submit" class="btn btn-sm btn-danger" data-zh="删除" data-en="Delete">删除</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="subModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle" data-zh="添加子分类" data-en="Add Subcategory">添加子分类</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <form method="POST" action="/admin/subcategories/save" class="admin-form">
+      <input type="hidden" name="id" id="sub_id">
+      <div class="form-group">
+        <label data-zh="所属分类" data-en="Parent Category">所属分类</label>
+        <select name="category_id" id="sub_cat" class="form-input" required>
+          <% categories.forEach(c => { %>
+            <option value="<%= c.id %>"><%= c.icon %> <%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-zh="名称" data-en="Name">名称</label>
+          <input type="text" name="name" id="sub_name" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label data-zh="标识(slug)" data-en="Slug">标识(slug)</label>
+          <input type="text" name="slug" id="sub_slug" class="form-input" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-zh="图标" data-en="Icon">图标</label>
+          <input type="text" name="icon" id="sub_icon" class="form-input" value="📎">
+        </div>
+        <div class="form-group">
+          <label data-zh="排序" data-en="Order">排序</label>
+          <input type="number" name="sort_order" id="sub_sort" class="form-input" value="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-zh="描述" data-en="Description">描述</label>
+        <input type="text" name="description" id="sub_desc" class="form-input">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()" data-zh="取消" data-en="Cancel">取消</button>
+        <button type="submit" class="btn btn-primary">💾 <span data-zh="保存" data-en="Save">保存</span></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function showAddForm() {
+  document.getElementById('modalTitle').textContent = '添加子分类';
+  ['sub_id','sub_name','sub_slug','sub_icon','sub_desc','sub_sort'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sub_icon').value = '📎';
+  document.getElementById('subModal').style.display = 'flex';
+}
+function editSub(s) {
+  document.getElementById('modalTitle').textContent = '编辑子分类';
+  document.getElementById('sub_id').value = s.id;
+  document.getElementById('sub_cat').value = s.category_id;
+  document.getElementById('sub_name').value = s.name;
+  document.getElementById('sub_slug').value = s.slug;
+  document.getElementById('sub_icon').value = s.icon || '📎';
+  document.getElementById('sub_desc').value = s.description || '';
+  document.getElementById('sub_sort').value = s.sort_order || 0;
+  document.getElementById('subModal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('subModal').style.display = 'none'; }
+</script>
+
+<%- include('../partials/admin-footer') %>

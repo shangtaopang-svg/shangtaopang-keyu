@@ -1,0 +1,488 @@
+<%- include('partials/header') %>
+<link rel="stylesheet" href="/css/leaflet.css" />
+<script src="/js/leaflet.min.js" onload="window.leafletReady = (typeof L !== 'undefined')"></script>
+
+<section class="page-header">
+  <div class="container">
+    <h1 class="page-title" data-zh="🗺️ 出行轨迹" data-en="🗺️ Travel Map">🗺️ 出行轨迹</h1>
+    <p class="page-desc" data-zh="近2年足迹 · 不出差就在宁海" data-en="Footprints of the past 2 years">近2年足迹 · 不出差就在宁海</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <!-- 统计卡片 -->
+    <div class="travel-stats" style="margin-bottom:16px">
+      <div class="ts-card"><span class="ts-num"><%= totalTrips %></span><span class="ts-label" data-zh="出行次数" data-en="Trips">出行次数</span></div>
+      <div class="ts-card"><span class="ts-num"><%= cities.length %></span><span class="ts-label" data-zh="到访城市" data-en="Cities">到访城市</span></div>
+      <div class="ts-card"><span class="ts-num"><%= totalDays %></span><span class="ts-label" data-zh="出行天数" data-en="Days">出行天数</span></div>
+      <div class="ts-card"><span class="ts-num" style="font-size:0.9rem">宁海</span><span class="ts-label" data-zh="常驻地" data-en="Home Base">常驻地</span></div>
+    </div>
+
+    <!-- 地图 -->
+    <div class="travel-map-wrap">
+      <div id="travelMap" style="width:100%;height:480px;border-radius:12px;border:1px solid var(--border);position:relative;z-index:1"></div>
+      <div class="map-legend">
+        <span class="ml-dot" style="background:#22d3ee"></span><span data-zh="常驻地" data-en="Home Base"> 常驻地</span>
+        <span class="ml-dot" style="background:#f97316"></span><span data-zh="到访城市" data-en="Cities Visited"> 到访城市</span>
+        <span class="ml-dot" style="background:linear-gradient(90deg,#22d3ee,#f97316,#34d399,#f472b6)"></span><span data-zh="多彩路线" data-en="Colorful Routes"> 多彩路线</span>
+      </div>
+    </div>
+
+    <!-- 月度热度 -->
+    <div class="travel-section" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0" data-zh="📅 月度出行" data-en="📅 Monthly Trips">📅 月度出行</h3>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="yearSelect" onchange="switchYear(this.value)" style="padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.82rem">
+            <% const curYear = new Date().getFullYear(); for (let y = curYear - 2; y <= curYear; y++) { %><option value="<%= y %>" <%= y === curYear ? 'selected' : '' %> data-zh="<%= y %>年" data-en="<%= y %>"><%= y %>年</option><% } %>
+          </select>
+          <span id="monthFilter" style="display:none;font-size:0.78rem;color:var(--primary);cursor:pointer" onclick="clearMonthFilter()" data-zh="✕ 清除" data-en="✕ Clear">✕ 清除</span>
+        </div>
+      </div>
+      <div class="month-grid" id="monthGrid" style="margin-top:12px">
+        <% const now = new Date(); for (let m = 1; m <= 12; m++) { const ms = String(m).padStart(2,'0'); const key = curYear + '-' + ms; const km = typeof monthKm !== 'undefined' ? (monthKm[key] || 0) : 0; %>
+          <div class="month-cell" data-month="<%= key %>" onclick="filterMonth('<%= key %>')" style="background:<%= months[key] ? '#22d3ee' : 'var(--bg)' %>;color:<%= months[key] ? '#fff' : 'var(--text-muted)' %>;cursor:pointer;opacity:1;border:<%= months[key] ? 'none' : '1px solid var(--border)' %>">
+            <span style="font-size:0.75rem;font-weight:<%= months[key] ? '600' : '400' %>" data-zh="<%= m %>月" data-en="Month <%= m %>"><%= m %>月</span>
+            <small style="font-size:0.65rem;opacity:<%= months[key] ? '1' : '0.5' %>" data-zh="<%= months[key] || 0 %>次" data-en="<%= months[key] || 0 %> trips"><%= months[key] || 0 %>次</small>
+            <% if (km > 0) { %><small style="font-size:0.55rem;opacity:0.8"><%= km %>km</small><% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- 时间线 -->
+    <div class="travel-section">
+      <h3 data-zh="📜 出行记录" data-en="📜 Travel Records">📜 出行记录</h3>
+      <% if (records.length === 0) { %>
+        <div class="empty-state"><span class="empty-icon">🗺️</span><h3 data-zh="暂无出行记录" data-en="No travel records yet">暂无出行记录</h3><p data-zh="在后台添加出行后，地图和时间线将自动更新" data-en="Add trips in the admin panel to update the map and timeline">在后台添加出行后，地图和时间线将自动更新</p></div>
+      <% } else { %>
+        <div class="travel-timeline">
+          <% records.forEach((r, i) => { %>
+          <div class="tl-entry">
+            <div class="tl-dot-line">
+              <span class="tld-dot" style="background:<%= r.transport === 'plane' ? '#f97316' : '#22d3ee' %>"></span>
+              <% if (i < records.length - 1) { %><span class="tld-line"></span><% } %>
+            </div>
+            <div class="tl-card" onmouseenter="highlightRoute(<%= i %>)" onmouseleave="unhighlightRoute()">
+              <div class="tlc-header">
+                <span class="tlc-city"><%= r.departure || '宁海' %> → <%= r.destination %></span>
+                <span class="tlc-date"><%= r.start_date %><%= r.end_date && r.end_date !== r.start_date ? ' ~ ' + r.end_date : '' %></span>
+              </div>
+              <% if (r.purpose) { %><p class="tlc-purpose">📋 <%= r.purpose %></p><% } %>
+              <div class="tlc-meta">
+                <span><%= r.transport === 'plane' ? '✈️' : r.transport === 'train' ? '🚄' : '🚗' %> <%= r.vehicle || '' %></span>
+                <% if (r.depart_time) { %><span>🕐 <%= r.depart_time %><%= r.arrive_time ? '→'+r.arrive_time : '' %></span><% } %>
+                <% if (r.distance) { %><span>📏 <%= r.distance %>km</span><% } %>
+                <% if (r.notes) { %><span>💬 <%= r.notes %></span><% } %>
+              </div>
+              <% if (r.segments) { try { var segs = JSON.parse(r.segments); if (segs.length > 0) { %>
+              <div style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);font-size:0.75rem;color:var(--text-muted)" data-zh="🔄 换乘<%= segs.length %>次：" data-en="🔄 <%= segs.length %> transfers:">
+                🔄 换乘<%= segs.length %>次：
+                <% segs.forEach(function(s){ %>
+                  <span><%= s.from %>→<%= s.to %>(<%= s.vehicle||'' %>)</span>
+                <% }) %>
+              </div>
+              <% } } catch(e){} } %>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<script>
+// 城市坐标映射 (宁海 + 常见出差地)
+const CITY_COORDS = {
+  '宁海': [29.29, 121.43],
+  '成都': [30.57, 104.07],
+  '上海': [31.23, 121.47],
+  '北京': [39.90, 116.40],
+  '深圳': [22.54, 114.06],
+  '杭州': [30.28, 120.15],
+  '广州': [23.13, 113.26],
+  '南京': [32.06, 118.80],
+  '武汉': [30.58, 114.30],
+  '重庆': [29.56, 106.55],
+  '西安': [34.26, 108.94],
+  '长沙': [28.23, 112.94],
+  '郑州': [34.75, 113.63],
+  '济南': [36.65, 117.00],
+  '青岛': [36.07, 120.38],
+  '厦门': [24.48, 118.09],
+  '福州': [26.07, 119.30],
+  '合肥': [31.82, 117.23],
+  '宁波': [29.87, 121.54],
+  '台州': [28.66, 121.42],
+  '温州': [28.00, 120.70],
+  '南昌': [28.68, 115.86],
+  '昆明': [25.04, 102.71],
+  '贵阳': [26.65, 106.63],
+  '南宁': [22.82, 108.37],
+  '哈尔滨': [45.75, 126.63],
+  '沈阳': [41.80, 123.38],
+  '大连': [38.91, 121.62],
+  '天津': [39.12, 117.19],
+  '石家庄': [38.04, 114.49],
+  '太原': [37.87, 112.55],
+  '兰州': [36.06, 103.79],
+  '亳州': [33.84, 115.78],
+  '城固县': [33.15, 107.33],
+  '陕西城固县': [33.15, 107.33],
+  '西昌': [27.89, 102.26],
+  '汉中': [33.07, 107.02],
+  '凉山': [27.90, 102.27],
+  '西宁': [36.62, 101.78],
+  '银川': [38.48, 106.23],
+  '拉萨': [29.65, 91.11],
+  '乌鲁木齐': [43.79, 87.62],
+  '呼和浩特': [40.82, 111.75],
+  '海口': [20.04, 110.34],
+  '三亚': [18.25, 109.51],
+  '桂林': [25.27, 110.29],
+  '洛阳': [34.62, 112.45],
+  '苏州': [31.30, 120.58],
+  '无锡': [31.49, 120.31],
+  '常州': [31.81, 119.97],
+  '徐州': [34.26, 117.18],
+  '绍兴': [30.00, 120.58],
+  '嘉兴': [30.77, 120.76],
+  '金华': [29.10, 119.65],
+  '芜湖': [31.35, 118.38],
+  '赣州': [25.83, 114.93],
+  '九江': [29.71, 115.99],
+  '宜昌': [30.70, 111.29],
+  '襄阳': [32.01, 112.14],
+  '亳州南': [33.83, 115.77],
+  '商丘': [34.41, 115.65],
+  '民权北': [34.65, 115.15],
+  '郑州东': [34.76, 113.77],
+  '洛阳龙门': [34.62, 112.45],
+  '华山北': [34.57, 110.08],
+  '西安北': [34.38, 108.93],
+  '奉化': [29.68, 121.40],
+  '宁波': [29.87, 121.54],
+  '余姚北': [30.05, 121.15],
+  '湖州': [30.89, 120.09],
+  '长兴': [31.02, 119.91],
+  '宜兴': [31.36, 119.82],
+  '溧阳': [31.42, 119.48],
+  '句容西': [31.95, 119.15],
+  '南京南': [31.97, 118.79],
+  '滁州': [32.30, 118.31],
+  '蚌埠南': [32.92, 117.39],
+  '徐州东': [34.26, 117.20],
+  '曲阜东': [35.60, 117.03],
+  '济南西': [36.67, 116.88],
+  '天津南': [39.06, 117.07],
+  '北京南': [39.86, 116.38],
+  '城固北': [33.16, 107.31],
+  '城固县': [33.15, 107.33],
+  '陕西城固县': [33.15, 107.33],
+  '西昌西': [27.86, 102.23],
+  '甘洛南': [28.97, 102.77],
+  '金口河南': [29.25, 103.07],
+  '峨边南': [29.23, 103.26],
+  '夹江': [29.74, 103.57],
+  '眉山': [30.06, 103.83],
+  '成都西': [30.68, 103.96],
+  '成都东': [30.63, 104.14],
+  '崇州': [30.63, 103.67],
+};
+
+const NINGHAI = CITY_COORDS['宁海'];
+function getCoords(city) { return CITY_COORDS[city] || NINGHAI; }
+const records = <%- JSON.stringify(records) %>;
+const monthsData = <%- JSON.stringify(months) %>;
+const monthKmData = <%- JSON.stringify(typeof monthKm !== 'undefined' ? monthKm : {}) %>;
+let map, routes = [], markers = [], animId;
+
+// 贝塞尔曲线插值
+
+function initMap() {
+  map = L.map('travelMap', { center: NINGHAI, zoom: 5 });
+  L.tileLayer('https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', { maxZoom: 18 }).addTo(map);
+
+  // 宁海
+  L.circleMarker(NINGHAI, { radius: 14, color: '#22d3ee', fillColor: '#22d3ee', fillOpacity: 0.15, weight: 2 }).addTo(map);
+  L.circleMarker(NINGHAI, { radius: 5, color: '#22d3ee', fillColor: '#fff', fillOpacity: 1 }).addTo(map);
+  L.marker(NINGHAI, { icon: L.divIcon({ className: '', html: '<div style="font-size:11px;color:#22d3ee;font-weight:600;margin-top:-18px">📍宁海</div>', iconSize: [0,0] }) }).addTo(map);
+
+  // 贝塞尔曲线：让路线更自然
+  function makeCurve(pts) {
+    if (!pts || pts.length < 2) return pts || [];
+    var result = [];
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p1 = pts[i], p2 = pts[i + 1];
+      var dx = p2[0] - p1[0], dy = p2[1] - p1[1];
+      var d = Math.sqrt(dx*dx + dy*dy) || 0.001;
+      var off = Math.min(d * 0.08, 0.5);
+      var cx = (p1[1] + p2[1])/2 + dy/d * off;
+      var cy = (p1[0] + p2[0])/2 - dx/d * off;
+      for (var t = 0; t <= 1; t += 0.06) {
+        var mt = 1-t;
+        result.push([mt*mt*p1[0] + 2*mt*t*cy + t*t*p2[0], mt*mt*p1[1] + 2*mt*t*cx + t*t*p2[1]]);
+      }
+    }
+    return result;
+  }
+
+  var allPts = [NINGHAI];
+  var labels = {};
+  var transferCnt = {};
+
+  // 统计中转
+  records.forEach(function(r) {
+    var segs = []; try { segs = JSON.parse(r.segments) || []; } catch(e) {}
+    segs.forEach(function(s) {
+      if (s.from && s.from !== '宁海') transferCnt[s.from] = (transferCnt[s.from]||0)+1;
+      if (s.to && s.to !== '宁海') transferCnt[s.to] = (transferCnt[s.to]||0)+1;
+    });
+    // 如果有 full_route，用它覆盖
+    var route = []; try { route = JSON.parse(r.full_route) || []; } catch(e) {}
+    if (route.length > 0 && !r._usedRoute) {
+      r._usedRoute = true;
+      segs = route.map(function(s) { return { from: r.departure||'宁海', to: s.station }; });
+    }
+  });
+
+  // 画路线
+  records.forEach(function(r) {
+    var segs = []; try { segs = JSON.parse(r.segments) || []; } catch(e) {}
+    // 优先使用 full_route
+    var fullRoute = []; try { fullRoute = JSON.parse(r.full_route) || []; } catch(e) {}
+    var stations = [];
+
+    if (fullRoute.length > 0) {
+      // 使用完整路线
+      var found = false;
+      fullRoute.forEach(function(s) {
+        var c = getCoords(s.station);
+        if (c) { stations.push({ name: s.station, coord: c }); }
+      });
+    } else if (segs.length > 0) {
+      segs.forEach(function(s) {
+        var from = getCoords(s.from);
+        var to = getCoords(s.to);
+        if (stations.length === 0 && from) stations.push({ name: s.from, coord: from });
+        if (to) stations.push({ name: s.to, coord: to });
+      });
+    }
+    if (stations.length < 2) return;
+
+    var pts = stations.map(function(s) { return s.coord; });
+    var names = stations.map(function(s) { return s.name; });
+    var curve = makeCurve(pts);
+    var clr = '#ef4444';
+    var poly = L.polyline(curve, { color: clr, weight: 3, opacity: 0.8 }).addTo(map);
+    routes.push(poly);
+
+    // 计算距离（haversine）
+    function calcDist(a, b) {
+      var R = 6371;
+      var dlat = (b[0]-a[0])*Math.PI/180, dlng = (b[1]-a[1])*Math.PI/180;
+      var x = Math.sin(dlat/2)**2 + Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dlng/2)**2;
+      return Math.round(R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x)));
+    }
+
+    // 站间里程标注
+    for (var di = 0; di < stations.length - 1; di++) {
+      var d = calcDist(stations[di].coord, stations[di+1].coord);
+      if (d > 5) {
+        var mid = [(stations[di].coord[0]+stations[di+1].coord[0])/2, (stations[di].coord[1]+stations[di+1].coord[1])/2];
+        L.marker(mid, { icon: L.divIcon({ className: '', html: '<div style="background:rgba(0,0,0,0.5);color:#aaa;font-size:8px;padding:0 5px;border-radius:6px;white-space:nowrap;backdrop-filter:blur(2px)">' + d + 'km</div>', iconSize: [0,0] }) }).addTo(map);
+      }
+    }
+
+    // 标记站点
+    stations.forEach(function(s, idx) {
+      var name = s.name;
+      if (labels[name]) return;
+      labels[name] = true;
+      var p = s.coord;
+      var isDest = name === r.destination;
+      var isTransfer = (transferCnt[name] || 0) >= 2;
+
+      if (isDest) {
+        L.circleMarker(p, { radius: 9, color: '#f97316', fillColor: '#f97316', fillOpacity: 0.25 }).addTo(map);
+        L.circleMarker(p, { radius: 5, color: '#f97316', fillColor: '#fff', fillOpacity: 1 }).addTo(map);
+        L.marker(p, { icon: L.divIcon({ className: '', html: '<div style="font-size:10px;color:#f97316;font-weight:600;margin-top:12px;white-space:nowrap">' + name + ' 🏁</div>', iconSize: [0,0] }) }).addTo(map);
+      } else if (isTransfer) {
+        L.circleMarker(p, { radius: 7, color: '#a78bfa', fillColor: '#a78bfa', fillOpacity: 0.2 }).addTo(map);
+        L.circleMarker(p, { radius: 4, color: '#a78bfa', fillColor: '#fff', fillOpacity: 1 }).addTo(map);
+        L.marker(p, { icon: L.divIcon({ className: '', html: '<div style="font-size:9px;color:#a78bfa;font-weight:500;margin-top:10px;white-space:nowrap">' + name + ' 🔄</div>', iconSize: [0,0] }) }).addTo(map);
+      } else {
+        L.circleMarker(p, { radius: 4, color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.6 }).addTo(map);
+      }
+      allPts.push(p);
+    });
+  });
+
+  if (allPts.length > 1) map.fitBounds(allPts, { padding: [50,50] });
+
+  // 走动小人
+  if (routes.length > 0) {
+    var walker = L.circleMarker([0, 0], { radius: 5, color: '#fff', fillColor: '#ef4444', fillOpacity: 1 }).addTo(map);
+    var ri = 0, st = 0;
+    (function anim() {
+      var p = routes[ri % routes.length].getLatLngs();
+      if (p && p.length > 1) {
+        st += 0.003; if (st >= 1) { st = 0; ri = (ri + 1) % routes.length; }
+        var t = p.length - 1, pos = st * t, idx = Math.floor(pos), f = pos - idx;
+        if (idx < t) walker.setLatLng([p[idx].lat + (p[idx+1].lat-p[idx].lat)*f, p[idx].lng + (p[idx+1].lng-p[idx].lng)*f]);
+      }
+      requestAnimationFrame(anim);
+    })();
+  }
+}
+function highlightRoute(idx) {
+  if (routes[idx]) {
+    routes[idx].setStyle({ color: '#22d3ee', weight: 4, opacity: 0.9 });
+    if (markers[idx]) markers[idx].setStyle({ radius: 10, color: '#22d3ee', fillColor: '#22d3ee', fillOpacity: 0.6 });
+  }
+}
+function unhighlightRoute() {
+  routes.forEach((r, i) => {
+    if (r) {
+      const colors = ['#22d3ee', '#f97316', '#34d399', '#f472b6', '#a78bfa', '#fbbf24', '#60a5fa', '#fb923c', '#34d399', '#818cf8'];
+      r.setStyle({ color: colors[i % colors.length], weight: 3, opacity: 0.7 });
+    }
+    if (markers[i]) markers[i].setStyle({ radius: 8, color: '#f97316', fillColor: '#f97316', fillOpacity: 0.4 });
+  });
+}
+
+// 移动小点动画
+let dot = null, dotIndex = 0, dotT = 0;
+function animateRoutes() {
+  if (records.length === 0) return;
+  // 找第一个有坐标的记录
+  let startIdx = -1;
+  for (let i = 0; i < records.length; i++) {
+    if (CITY_COORDS[records[i].destination]) { startIdx = i; break; }
+  }
+  if (startIdx < 0) return;
+
+  dotIndex = startIdx;
+  dotT = 0;
+
+  if (!dot) {
+    dot = L.circleMarker(NINGHAI, {
+      radius: 5, color: '#fff', fillColor: '#22d3ee', fillOpacity: 1, weight: 2
+    }).addTo(map);
+  }
+
+  function step() {
+    if (dotIndex >= records.length) { dotIndex = 0; dotT = 0; }
+    const r = records[dotIndex];
+    const from = getCoords(r.departure || '宁海');
+    const dest = getCoords(r.destination);
+    if (!dest) { dotIndex++; step(); return; }
+
+    dotT += 0.008;
+    if (dotT >= 1) {
+      dotT = 0;
+      dotIndex++;
+      setTimeout(step, 2000);
+      return;
+    }
+
+    const t = dotT;
+    const mt = 1 - t;
+    const midLng = (from[1] + dest[1]) / 2;
+    const midLat = (from[0] + dest[0]) / 2 + 0.6;
+    const x = mt*mt*from[1] + 2*mt*t*midLng + t*t*dest[1];
+    const y = mt*mt*from[0] + 2*mt*t*midLat + t*t*dest[0];
+    dot.setLatLng([y, x]);
+    animId = requestAnimationFrame(step);
+  }
+  step();
+}
+
+// 年度切换
+function switchYear(year) {
+  var grid = document.getElementById('monthGrid');
+  var html = '';
+  for (var m = 1; m <= 12; m++) {
+    var ms = String(m).padStart(2, '0');
+    var key = year + '-' + ms;
+    var count = monthsData[key] || 0;
+    var km = monthKmData[key] || 0;
+    html += '<div class="month-cell" data-month="' + key + '" onclick="filterMonth(\'' + key + '\')" style="background:' + (count ? '#22d3ee' : 'var(--bg)') + ';color:' + (count ? '#fff' : 'var(--text-muted)') + ';cursor:pointer;opacity:1;border:' + (count ? 'none' : '1px solid var(--border)') + '">';
+    html += '<span style="font-size:0.75rem;font-weight:' + (count ? '600' : '400') + '">' + m + '月</span>';
+    html += '<small style="font-size:0.65rem;opacity:' + (count ? '1' : '0.5') + '">' + count + '次</small>';
+    if (km) html += '<small style="font-size:0.55rem;opacity:0.8">' + km + 'km</small>';
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+function filterMonth(month) {
+  var items = document.querySelectorAll('.tl-entry');
+  var count = 0;
+  items.forEach(function(el) {
+    var dateEl = el.querySelector('.tlc-date');
+    if (dateEl) {
+      var dateText = dateEl.textContent;
+      if (dateText.indexOf(month) === 0) { el.style.display = ''; count++; }
+      else { el.style.display = 'none'; }
+    }
+  });
+  document.getElementById('monthFilter').style.display = count > 0 ? '' : 'none';
+  document.getElementById('monthFilter').textContent = count > 0 ? '📅 ' + month + ' (' + count + '次) ✕ 清除' : '该月无出行记录 ✕ 清除';
+  // 高亮选中的月份
+  document.querySelectorAll('.month-cell').forEach(function(c) { c.style.outline = c.dataset.month === month ? '2px solid var(--primary)' : ''; });
+}
+function clearMonthFilter() {
+  document.querySelectorAll('.tl-entry').forEach(function(el) { el.style.display = ''; });
+  document.getElementById('monthFilter').style.display = 'none';
+  document.querySelectorAll('.month-cell').forEach(function(c) { c.style.outline = ''; });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var el = document.getElementById('travelMap');
+  var check = setInterval(function() {
+    if (window.leafletReady && typeof L !== 'undefined') {
+      clearInterval(check);
+      try { initMap(); }
+      catch(e) { el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)"><p style="font-size:2rem">🗺️</p><p style="font-size:0.85rem;margin-top:8px" data-zh="' + (e.message || '错误') + '" data-en="' + (e.message || 'Error') + '">' + (e.message || '错误') + '</p></div>'; }
+    }
+  }, 100);
+  // 超时处理
+  setTimeout(function() {
+    if (!window.leafletReady) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)"><p style="font-size:2rem">🗺️</p><p style="font-size:0.85rem;margin-top:8px" data-zh="地图资源加载超时，请刷新页面" data-en="Map loading timeout, please refresh the page">地图资源加载超时，请刷新页面</p></div>';
+  }, 15000);
+});
+</script>
+
+<style>
+.travel-stats { display:grid;grid-template-columns:repeat(4,1fr);gap:10px; }
+.ts-card { display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px; }
+.ts-num { font-size:1.5rem;font-weight:700;color:var(--primary); }
+.ts-label { font-size:0.75rem;color:var(--text-muted); }
+.travel-map-wrap { position:relative; }
+.map-legend { display:flex;gap:16px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;margin-top:8px;font-size:0.78rem;color:var(--text-muted);flex-wrap:wrap; }
+.ml-dot { display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle; }
+.city-label { background:none !important;border:none !important;color:var(--text-muted);font-size:0.72rem;font-weight:500; }
+.travel-section { background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:12px; }
+.travel-section h3 { font-size:0.9rem;font-weight:600;margin-bottom:12px; }
+.month-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(32px,1fr));gap:3px; }
+.month-cell { display:flex;flex-direction:column;align-items:center;padding:3px;border-radius:4px;font-size:0.55rem; }
+.month-cell small { font-size:0.5rem;opacity:0.7; }
+.travel-timeline { display:flex;flex-direction:column;gap:0; }
+.tl-entry { display:flex;gap:14px; }
+.tl-dot-line { display:flex;flex-direction:column;align-items:center;width:14px;flex-shrink:0;padding-top:3px; }
+.tld-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0; }
+.tld-line { width:2px;flex:1;background:var(--border);margin-top:3px; }
+.tl-card { flex:1;padding:10px 14px;margin-bottom:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;transition:all 0.2s;cursor:pointer; }
+.tl-card:hover { border-color:var(--primary); }
+.tlc-header { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:2px; }
+.tlc-city { font-weight:600;font-size:0.9rem; }
+.tlc-date { font-size:0.75rem;color:var(--text-muted); }
+.tlc-purpose { font-size:0.82rem;color:var(--text-secondary);margin-bottom:2px; }
+.tlc-meta { display:flex;gap:10px;font-size:0.75rem;color:var(--text-muted); }
+@media (max-width:768px) { .travel-stats { grid-template-columns:repeat(2,1fr); } #travelMap { height:320px !important; } }
+</style>
+
+<%- include('partials/footer') %>
