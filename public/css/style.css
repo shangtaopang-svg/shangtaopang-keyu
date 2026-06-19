@@ -1275,3 +1275,123 @@ a:hover { color: #a5b4fc; }
   .model-icon { font-size: 1.5rem; }
   .model-name { font-size: 0.78rem; }
 }
+
+/* ===== 移动端全面优化 (手机 < 480px) ===== */
+@media (max-width: 480px) {
+  /* 防止 iOS 自动缩放 */
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-size: 16px; }
+
+  /* 导航菜单 - 更大触摸区域 */
+  .mobile-nav-link { padding: 16px 20px; font-size: 1.1rem; }
+  .mobile-search input { padding: 14px 16px; font-size: 16px; }
+  .mobile-search button { padding: 14px 24px; }
+
+  /* Hero */
+  .hero { padding: 32px 0 24px !important; }
+  .hero-title { font-size: clamp(1.6rem, 7vw, 2rem) !important; }
+  .hero-subtitle { font-size: 0.85rem !important; }
+  .hero-actions { flex-direction: column; align-items: center; gap: 8px; }
+  .hero-btn { width: 100%; max-width: 260px; justify-content: center; }
+  .hero-stats { gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .hs-item { padding: 6px 12px; min-width: 70px; }
+  .hs-num { font-size: 1.2rem; }
+  .hs-label { font-size: 0.65rem; }
+
+  /* 首页卡片 */
+  .home-cards { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .home-card { padding: 12px 8px; }
+  .hc-num { font-size: 1.1rem; }
+  .hc-label { font-size: 0.65rem; }
+
+  /* 分类/模型 */
+  .category-grid { gap: 8px; }
+  .category-card { padding: 14px 10px; }
+  .cat-icon { font-size: 1.4rem; }
+  .cat-name { font-size: 0.78rem; }
+
+  /* 视频列表 */
+  .video-grid { grid-template-columns: 1fr; gap: 10px; }
+  .video-card { padding: 10px; }
+  .video-title { font-size: 0.9rem; }
+  .video-meta { font-size: 0.72rem; }
+
+  /* 底部 */
+  .footer { padding: 24px 16px 16px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 20px; }
+  .footer-col h4 { margin-bottom: 10px; }
+  .footer-col a { padding: 6px 0; font-size: 0.9rem; }
+
+  /* 作品列表 */
+  .wk-grid { grid-template-columns: 1fr; }
+  .wk-card-body { padding: 12px 14px 0; }
+  .wk-card-title { font-size: 0.9rem; }
+  .wk-card-desc { font-size: 0.78rem; }
+  .wk-card-foot { padding: 10px 14px; }
+
+  /* 作品详情 */
+  .wd-hero { padding: 36px 0 32px; }
+  .wd-icon { font-size: 2.2rem; }
+  .wd-title { font-size: 1.3rem; }
+  .wd-sub { font-size: 0.82rem; }
+  .wd-btn { width: 100%; justify-content: center; padding: 14px 24px; font-size: 0.9rem; }
+  .wd-detail { padding: 0 4px; }
+  .wd-section-title { font-size: 1rem; }
+  .wd-card { padding: 14px 16px; }
+  .wd-grid-2 { grid-template-columns: 1fr; }
+  .wd-highlight-card { padding: 12px 14px; font-size: 0.82rem; }
+  .wd-tech { padding: 5px 12px; font-size: 0.75rem; }
+
+  /* 统计页 */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card { padding: 14px; }
+  .stat-val { font-size: 1.4rem; }
+  .stat-label { font-size: 0.68rem; }
+
+  /* 影集 */
+  .photo-grid { column-count: 2 !important; column-gap: 6px !important; }
+  .photo-item { margin-bottom: 6px !important; }
+  .album-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .album-card { padding: 14px; }
+  .album-title { font-size: 0.85rem; }
+
+  /* 搜索 */
+  .search-form { display: none; }
+  .search-input { font-size: 16px; padding: 12px 16px; }
+  .search-results { padding: 8px; }
+
+  /* 通用间距 */
+  .container { padding-left: 12px; padding-right: 12px; }
+  .section { padding: 24px 0; }
+  .page-header { padding: 20px 0 14px; }
+  .page-title { font-size: 1.3rem; }
+  .page-desc { font-size: 0.8rem; }
+
+  /* 留声机 */
+  .vinyl-section { padding: 24px 10px 32px; }
+  .vinyl-header { flex-direction: column; gap: 6px; text-align: center; }
+  .turntable { width: 75vw; height: 75vw; }
+  .pl-items { max-height: 160px; }
+
+  /* 移动端安全区域 */
+  .site-header { padding: 0 12px; }
+  .header-inner { gap: 6px; }
+  .logo-text { font-size: 0.85rem; }
+  .menu-toggle { padding: 10px 12px; font-size: 1.2rem; }
+
+  /* About页 */
+  .ab-hero { padding: 28px 0 20px; }
+  .ab-hero-inner { flex-direction: column; text-align: center; }
+  .ab-stats-line { justify-content: center; flex-wrap: wrap; font-size: 0.78rem; }
+  .ab-creds { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .ab-creds-inner { min-width: 0; flex: 1 1 45%; padding: 8px 10px; }
+  .ab-creds-text { font-size: 0.65rem; }
+  .ab-name { font-size: clamp(2rem, 8vw, 2.5rem); }
+  .ab-num-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .ab-story { grid-template-columns: 1fr; }
+  .ab-skill-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .ab-project-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .ab-contact { padding: 20px 14px; }
+  .ab-cf-input { font-size: 16px; padding: 12px 14px; }
+}
+
