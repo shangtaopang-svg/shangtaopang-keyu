@@ -1412,8 +1412,13 @@ app.get('/api/lunar', (req, res) => {
   } catch(e) { res.json({ date: '--' }); }
 });
 
-// ---- 天气 API（代理 wttr.in） ----
+// ---- 天气 API（代理 wttr.in，缓存10分钟） ----
+let weatherCache = { data: null, expires: 0 };
 app.get('/api/weather', async (req, res) => {
+  // 缓存有效期内直接返回
+  if (weatherCache.data && Date.now() < weatherCache.expires) {
+    return res.json(weatherCache.data);
+  }
   try {
     const https = require('https');
     https.get('https://wttr.in/Ningbo?format=%C|%t|%c&lang=zh', (resp) => {
@@ -1422,11 +1427,13 @@ app.get('/api/weather', async (req, res) => {
       resp.on('end', () => {
         const parts = data.split('|');
         const iconMap = { '☀️':'☀️','🌤':'⛅','⛅':'⛅','🌥':'☁️','☁️':'☁️','🌧':'🌧️','🌦':'🌦️','⛈':'⛈️','❄️':'❄️','🌫':'🌫️','☔':'🌧️' };
-        res.json({
+        weatherCache.data = {
           desc: (parts[0] || '').trim() || '晴',
           temp: (parts[1] || '').trim().replace('+','') || '--°C',
           icon: iconMap[(parts[2] || '').trim()] || '☀️'
-        });
+        };
+        weatherCache.expires = Date.now() + 600000; // 10分钟
+        res.json(weatherCache.data);
       });
     }).on('error', () => { res.json({ desc:'--', temp:'--°C', icon:'☀️' }); });
   } catch(e) { res.json({ desc:'--', temp:'--°C', icon:'☀️' }); }
