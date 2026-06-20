@@ -422,18 +422,20 @@ body:not(.light-theme) .nh-photo-placeholder { background: var(--bg); }
 <link rel="stylesheet" href="/css/leaflet.css" />
 <script src="/js/leaflet.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // 宁海地图（Leaflet）- 加载超时保护
-  if (typeof L !== 'undefined' && document.getElementById('ninghaiMap')) {
-    var map = L.map('ninghaiMap', { zoomControl: true }).setView([29.35, 121.45], 10);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 18
-    }).addTo(map);
-    L.marker([29.29, 121.43]).addTo(map).bindPopup('🏙️ 宁海县城');
-    L.marker([29.38, 121.62]).addTo(map).bindPopup('🌟 长街镇 · 我长大的地方');
-    L.marker([29.37, 121.63]).addTo(map).bindPopup('🌳 石桥头村 · 我的老家');
-  }
+// 宁海地图 - 页面完全加载后再初始化
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var el = document.getElementById('ninghaiMap');
+    if (typeof L !== 'undefined' && el) {
+      try {
+        var map = L.map(el, { zoomControl: true, attributionControl: false }).setView([29.35, 121.45], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+        L.marker([29.29, 121.43]).addTo(map).bindPopup('🏙️ 宁海县城');
+        L.marker([29.38, 121.62]).addTo(map).bindPopup('🌟 长街镇 · 我长大的地方');
+        L.marker([29.37, 121.63]).addTo(map).bindPopup('🌳 石桥头村 · 我的老家');
+      } catch(e) { console.log('Map error:', e); }
+    }
+  }, 500);
 });
 </script>
 
