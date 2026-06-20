@@ -282,28 +282,45 @@
 .wd-link-value:hover { text-decoration: underline; }
 
 /* ===== Theme overrides ===== */
-[data-style="organic"] .wd-hero { background: linear-gradient(135deg, #f5f0eb, #ede5d8, #f5f0eb); }
-[data-style="organic"] .wd-title { background: linear-gradient(135deg, #3d3229, #7a9e7e); -webkit-background-clip: text; }
-[data-style="organic"] .wd-sub { color: rgba(60,50,42,0.6); }
-[data-style="organic"] .wd-tag { background: rgba(122,158,126,0.08); border-color: rgba(122,158,126,0.15); color: rgba(60,50,42,0.6); }
+/* Organic — 所有文字改深色 */
+[data-style="organic"] .wd-hero { background: linear-gradient(135deg, #f5f0eb, #ede5d8, #f5f0eb); color: #3d3229; }
+[data-style="organic"] .wd-back { color: #7a9e7e; }
+[data-style="organic"] .wd-back:hover { color: #3d3229; }
+[data-style="organic"] .wd-title { background: linear-gradient(135deg, #3d3229, #7a9e7e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+[data-style="organic"] .wd-sub { color: #5a4a3a; }
+[data-style="organic"] .wd-tag { background: rgba(122,158,126,0.08); border-color: rgba(122,158,126,0.15); color: #3d3229; }
 [data-style="organic"] .wd-btn { background: linear-gradient(135deg, #7a9e7e, #5a7e5e); color: #000; }
 [data-style="organic"] .wd-btn:hover { box-shadow: 0 8px 24px rgba(122,158,126,0.3); }
 [data-style="organic"] .wd-hl-check { background: rgba(122,158,126,0.12); color: #7a9e7e; }
 [data-style="organic"] .wd-highlight-card:hover { border-color: #7a9e7e; }
 [data-style="organic"] .wd-link-value { color: #7a9e7e; }
+[data-style="organic"] .wd-section-title { color: #3d3229; }
+[data-style="organic"] .wd-detail-text { color: #5a4a3a; }
 
-[data-style="brutalism"] .wd-hero { background: #f5f0e8; border-bottom: 4px solid #000; }
+/* Brutalism — 所有文字改黑色 */
+[data-style="brutalism"] .wd-hero { background: #f5f0e8; border-bottom: 4px solid #000; color: #000; }
+[data-style="brutalism"] .wd-back { color: #000; }
+[data-style="brutalism"] .wd-back:hover { color: #D35400; }
 [data-style="brutalism"] .wd-title { background: none; -webkit-text-fill-color: #000; color: #000; text-transform: uppercase; }
+[data-style="brutalism"] .wd-sub { color: #333; }
+[data-style="brutalism"] .wd-tag { background: #fff; border-color: #000; color: #000; border-radius: 0; }
 [data-style="brutalism"] .wd-btn { border-radius: 0; background: #000; color: #fff; border: 3px solid #000; }
 [data-style="brutalism"] .wd-btn:hover { box-shadow: 4px 4px 0 #D35400; }
-[data-style="brutalism"] .wd-card { border-radius: 0; border-width: 3px; border-color: #000; }
-[data-style="brutalism"] .wd-tag { border-radius: 0; }
+[data-style="brutalism"] .wd-card { border-radius: 0; border-width: 3px; border-color: #000; color: #000; }
 [data-style="brutalism"] .wd-link-value { color: #D35400; }
+[data-style="brutalism"] .wd-section-title { color: #000; }
+[data-style="brutalism"] .wd-detail-text { color: #333; }
 
-[data-style="magazine"] .wd-hero { background: linear-gradient(135deg, #faf8f5, #f0ece4, #faf8f5); border-bottom: 2px solid #c0392b; }
-[data-style="magazine"] .wd-title { font-family: Georgia, serif; background: none; -webkit-text-fill-color: #1a1a1a; }
+/* Magazine — 所有文字改深色 */
+[data-style="magazine"] .wd-hero { background: linear-gradient(135deg, #faf8f5, #f0ece4, #faf8f5); border-bottom: 2px solid #c0392b; color: #1a1a1a; }
+[data-style="magazine"] .wd-back { color: #c0392b; }
+[data-style="magazine"] .wd-title { font-family: Georgia, serif; background: none; -webkit-text-fill-color: #1a1a1a; color: #1a1a1a; }
+[data-style="magazine"] .wd-sub { color: #555; }
+[data-style="magazine"] .wd-tag { background: transparent; border-color: #ddd; color: #333; border-radius: 0; }
 [data-style="magazine"] .wd-btn { border-radius: 0; background: transparent; color: #c0392b; border: 1px solid #c0392b; }
 [data-style="magazine"] .wd-btn:hover { background: #c0392b; color: #fff; }
+[data-style="magazine"] .wd-section-title { font-family: Georgia, serif; color: #1a1a1a; }
+[data-style="magazine"] .wd-detail-text { color: #555; }
 [data-style="magazine"] .wd-card { border-radius: 0; }
 [data-style="magazine"] .wd-link-value { color: #c0392b; }
 [data-style="magazine"] .wd-section-title { font-family: Georgia, serif; }
