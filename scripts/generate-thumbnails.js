@@ -26,6 +26,7 @@ async function processFile(file) {
   }
   try {
     await sharp(path.join(uploadsDir, file))
+      .rotate()                    // 自动修正 EXIF 方向
       .resize(400, undefined, { fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality: 80 })
       .toFile(thumbPath);

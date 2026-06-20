@@ -5,12 +5,26 @@
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
       <div>
         <h1 class="page-title"><%= album.title %></h1>
-        <p class="page-desc" data-zh="<%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> 张照片" data-en="<%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> photos"><%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> 张照片</p>
+        <%
+          var hasVideo = photos.some(function(p) { return (p.filename || '').match(/\.(mp4|m4v|webm)$/i); });
+          var allVideo = photos.every(function(p) { return (p.filename || '').match(/\.(mp4|m4v|webm)$/i); });
+          var unit = allVideo ? '个视频' : (hasVideo ? '个媒体' : '张照片');
+        %>
+        <p class="page-desc" data-zh="<%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> <%= unit %>" data-en="<%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> <%= allVideo ? 'videos' : (hasVideo ? 'media' : 'photos') %>"><%= album.description || '' %> <% if (album.year) { %>· <%= album.year %><% } %> · <%= photos.length %> <%= unit %></p>
       </div>
       <a href="/gallery" class="btn btn-outline btn-sm" data-zh="← 返回影集" data-en="← Back to Gallery">← 返回影集</a>
     </div>
   </div>
 </section>
+
+<% if (allVideo) { %>
+<style>
+.photo-grid { column-count: 2; max-width: 800px; margin: 0 auto; }
+.photo-item video { border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.photo-play-btn { width: 56px; height: 56px; font-size: 1.5rem; }
+@media (max-width: 768px) { .photo-grid { column-count: 1; } }
+</style>
+<% } %>
 
 <section class="section">
   <div class="container">

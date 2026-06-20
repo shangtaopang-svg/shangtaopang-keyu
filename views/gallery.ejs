@@ -39,7 +39,7 @@
             <h2 class="mag-card-title"><%= a.title %></h2>
             <div class="mag-card-meta">
               <% if (a.year) { %><span><%= a.year %></span><% } %>
-              <span data-zh="<%= a.photo_count || 0 %> 张" data-en="<%= a.photo_count || 0 %> photos"><%= a.photo_count || 0 %> 张</span>
+              <span data-zh="<%= a.photo_count || 0 %> <%= a.all_video ? '个视频' : '张' %>" data-en="<%= a.photo_count || 0 %> <%= a.all_video ? 'videos' : 'photos' %>"><%= a.photo_count || 0 %> <%= a.all_video ? '个视频' : '张' %></span>
             </div>
             <% if (a.description) { %><p class="mag-card-desc"><%= a.description %></p><% } %>
           </div>

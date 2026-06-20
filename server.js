@@ -284,7 +284,10 @@ app.get('/works/:id', (req, res) => {
 
 // ---- 个人影集 ----
 app.get('/gallery', (req, res) => {
-  const albums = query(`SELECT a.*, (SELECT COUNT(*) FROM photos WHERE album_id = a.id) as photo_count FROM photo_albums a ORDER BY a.sort_order, a.created_at DESC`);
+  const albums = query(`SELECT a.*,
+    (SELECT COUNT(*) FROM photos WHERE album_id = a.id) as photo_count,
+    (SELECT CASE WHEN COUNT(*) > 0 AND SUM(CASE WHEN filename NOT LIKE '%.mp4' AND filename NOT LIKE '%.m4v' AND filename NOT LIKE '%.webm' THEN 1 ELSE 0 END) = 0 THEN 1 ELSE 0 END FROM photos WHERE album_id = a.id) as all_video
+    FROM photo_albums a ORDER BY a.sort_order, a.created_at DESC`);
   const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
   // 获取每个相册的封面图
   const albumCovers = {};
