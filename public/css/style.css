@@ -1390,10 +1390,15 @@ a:hover { color: #a5b4fc; }
   .pl-items { max-height: 160px; }
 
   /* 移动端安全区域 */
-  .site-header { padding: 0 12px; }
-  .header-inner { gap: 6px; }
-  .logo-text { font-size: 0.85rem; }
-  .menu-toggle { padding: 10px 12px; font-size: 1.2rem; }
+  .site-header { padding: 0 8px; overflow: visible; }
+  .header-inner { gap: 4px; padding: 0 8px; }
+  .logo { font-size: 0.8rem; flex-shrink: 0; }
+  .logo-text { font-size: 0.78rem; white-space: nowrap; }
+  .header-right { gap: 4px; flex-shrink: 0; }
+  .style-btn { font-size: 0.65rem !important; padding: 4px 8px !important; }
+  .lang-toggle { font-size: 0.65rem; padding: 4px 6px; }
+  .theme-toggle { font-size: 0.9rem; padding: 4px 6px; }
+  .menu-toggle { padding: 8px 10px; font-size: 1.1rem; }
 
   /* About页 */
   .ab-hero { padding: 28px 0 20px; }
