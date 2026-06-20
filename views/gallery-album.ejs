@@ -22,8 +22,13 @@
     <% } else { %>
       <div class="photo-grid" id="photoGrid">
         <% photos.forEach(p => { %>
-          <div class="photo-item" onclick="openViewer(this)">
-            <img src="<%= p.filename %>" alt="<%= p.original_name || '' %>" loading="lazy">
+          <div class="photo-item" onclick="<%= (p.filename || '').match(/\.(mp4|m4v|webm)$/i) ? '' : 'openViewer(this)' %>">
+            <% if ((p.filename || '').match(/\.(mp4|m4v|webm)$/i)) { %>
+              <video src="<%= p.filename %>" style="width:100%;height:100%;object-fit:cover" preload="metadata" onclick="this.paused ? this.play() : this.pause()"></video>
+              <div class="photo-play-btn">▶</div>
+            <% } else { %>
+              <img src="<%= p.filename %>" alt="<%= p.original_name || '' %>" loading="lazy">
+            <% } %>
             <div class="photo-desc">
               <% if (p.description) { %><span><%= p.description %></span><% } %>
               <% if (p.date_taken) { %><span style="font-size:0.7rem;opacity:0.7">📅 <%= p.date_taken %></span><% } %>
@@ -59,8 +64,17 @@ document.addEventListener('keydown', function(e) {
   border-radius: 10px; overflow: hidden; position: relative;
   transition: var(--transition);
 }
+.photo-item { position: relative; }
 .photo-item:hover { transform: scale(1.01); }
-.photo-item img { width: 100%; display: block; border-radius: 10px; }
+.photo-item img, .photo-item video { width: 100%; display: block; border-radius: 10px; }
+.photo-play-btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(0,0,0,0.6); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; pointer-events: none;
+  border: 2px solid rgba(255,255,255,0.3);
+}
 .photo-desc {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 8px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.6));
