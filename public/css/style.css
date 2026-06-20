@@ -769,7 +769,7 @@ a:hover { color: #a5b4fc; }
 .footer-logo { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
 .footer-desc { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.6; }
 .footer-col h4 { font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary); }
-.footer-col a { display: block; color: var(--text-muted) !important; font-size: 0.78rem; margin-bottom: 4px; padding: 2px 0; }
+.footer-col a { display: block; color: var(--text-secondary) !important; font-size: 0.78rem; margin-bottom: 4px; padding: 2px 0; }
 .footer-col a:hover { color: var(--text) !important; }
 
 /* 社交链接 */
