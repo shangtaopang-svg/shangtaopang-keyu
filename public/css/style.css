@@ -1319,12 +1319,14 @@ a:hover { color: #a5b4fc; }
   .video-meta { font-size: 0.72rem; }
 
   /* 底部 */
-  .footer { padding: 24px 16px 16px; }
-  .footer-inner { grid-template-columns: 1fr; gap: 20px; }
-  .footer-col h4 { margin-bottom: 10px; }
-  .footer-col a { padding: 6px 0; font-size: 0.9rem; }
-  .footer-social { flex-direction: row; flex-wrap: wrap; gap: 2px 12px; }
-  .footer-desc { white-space: normal; font-size: 0.75rem; }
+  .site-footer { padding: 20px 0 0; }
+  .footer-inner { grid-template-columns: 1fr; gap: 16px; padding: 0 12px 16px; }
+  .footer-col h4 { margin-bottom: 8px; font-size: 0.75rem; }
+  .footer-col a { padding: 6px 0; font-size: 0.85rem; }
+  .footer-logo { font-size: 0.9rem; }
+  .footer-desc { white-space: normal; font-size: 0.7rem; line-height: 1.5; }
+  .footer-social { flex-direction: row; flex-wrap: wrap; gap: 4px 16px; }
+  .social-link { font-size: 0.82rem; }
 
   /* 作品列表 */
   .wk-grid { grid-template-columns: 1fr; }
