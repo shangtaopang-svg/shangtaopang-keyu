@@ -1,0 +1,440 @@
+<%- include('partials/header') %>
+
+<!-- Hero -->
+<section class="nh-hero">
+  <div class="nh-hero-bg">
+    <div class="nh-wave nh-wave-1"></div>
+    <div class="nh-wave nh-wave-2"></div>
+  </div>
+  <div class="container nh-hero-inner">
+    <span class="nh-badge" data-zh="我的家乡" data-en="My Hometown">我的家乡</span>
+    <h1 class="nh-title" data-zh="宁海" data-en="Ninghai">宁海</h1>
+    <p class="nh-sub" data-zh="浙江东部一座有山有海的小城" data-en="A small city with mountains and sea in eastern Zhejiang">浙江东部一座有山有海的小城</p>
+    <div class="nh-stats">
+      <div class="nh-stat-item"><span class="nh-stat-val">📍</span><span class="nh-stat-label" data-zh="宁波南部" data-en="South Ningbo">宁波南部</span></div>
+      <div class="nh-stat-item"><span class="nh-stat-val">👥</span><span class="nh-stat-label" data-zh="约70万人" data-en="~700k people">约70万人</span></div>
+      <div class="nh-stat-item"><span class="nh-stat-val">🏖️</span><span class="nh-stat-label" data-zh="海岸线" data-en="Coastline">海岸线</span></div>
+      <div class="nh-stat-item"><span class="nh-stat-val">📖</span><span class="nh-stat-label" data-zh="徐霞客开篇地" data-en="Xu Xiake's start">徐霞客开篇地</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 地图 -->
+<section class="nh-section">
+  <div class="container">
+    <h2 class="nh-section-title" data-zh="🗺️ 地理位置" data-en="🗺️ Location">🗺️ 地理位置</h2>
+    <div class="nh-map-wrap">
+      <div id="ninghaiMap" style="width:100%;height:400px;border:3px solid #000;"></div>
+    </div>
+    <p class="nh-map-desc" data-zh="宁海位于浙江省东部沿海，象山港和三门湾之间，是宁波市下辖的一个县。天台山、四明山两大山脉在此交汇，造就了独特的山海风光。" data-en="Ninghai is located on the eastern coast of Zhejiang, between Xiangshan Port and Sanmen Bay, a county under Ningbo city.">
+      宁海位于浙江省东部沿海，象山港和三门湾之间，是宁波市下辖的一个县。天台山、四明山两大山脉在此交汇，造就了独特的山海风光。
+    </p>
+  </div>
+</section>
+
+<!-- 风土人情 -->
+<section class="nh-section nh-section-alt">
+  <div class="container">
+    <h2 class="nh-section-title" data-zh="🎭 风土人情" data-en="🎭 Culture">🎭 风土人情</h2>
+    <div class="nh-card-grid">
+      <div class="nh-card">
+        <div class="nh-card-icon">🍜</div>
+        <h3 data-zh="美食" data-en="Food">美食</h3>
+        <ul>
+          <li data-zh="长街蛏子 — 国家地理标志，肥嫩鲜美">长街蛏子 — 国家地理标志，肥嫩鲜美</li>
+          <li data-zh="岔路麦饼 — 宁海传统小吃，香脆可口">岔路麦饼 — 宁海传统小吃，香脆可口</li>
+          <li data-zh="前童三宝 — 豆腐、香干、空心腐">前童三宝 — 豆腐、香干、空心腐</li>
+          <li data-zh="宁海海鲜 — 黄鱼、带鱼、梭子蟹">宁海海鲜 — 黄鱼、带鱼、梭子蟹</li>
+        </ul>
+      </div>
+      <div class="nh-card">
+        <div class="nh-card-icon">🏘️</div>
+        <h3 data-zh="民俗" data-en="Traditions">民俗</h3>
+        <ul>
+          <li data-zh="十里红妆 — 宁海传统婚俗，嫁妆队伍盛大">十里红妆 — 宁海传统婚俗</li>
+          <li data-zh="泥金彩漆 — 国家级非物质文化遗产">泥金彩漆 — 国家级非遗</li>
+          <li data-zh="宁海平调 — 地方戏曲，别具一格">宁海平调 — 地方戏曲</li>
+          <li data-zh="舞龙舞狮 — 节庆必备，热闹非凡">舞龙舞狮 — 节庆必备</li>
+        </ul>
+      </div>
+      <div class="nh-card">
+        <div class="nh-card-icon">🗣️</div>
+        <h3 data-zh="方言" data-en="Dialect">方言</h3>
+        <ul>
+          <li data-zh="宁海话属吴语太湖片甬江小片">宁海话 — 吴语太湖片</li>
+          <li data-zh="长街镇口音与县城略有不同">长街口音略有不同</li>
+          <li data-zh="有趣的词汇：吃茶(喝茶)、困觉(睡觉)">吃茶(喝茶)、困觉(睡觉)</li>
+          <li data-zh=""
+          data-en="">"侬好" (你好)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 徐霞客开游节 -->
+<section class="nh-section">
+  <div class="container">
+    <h2 class="nh-section-title" data-zh="🏆 徐霞客开游节" data-en="🏆 Xu Xiake Festival">🏆 徐霞客开游节</h2>
+    <div class="nh-feature">
+      <div class="nh-feature-icon">📖</div>
+      <div class="nh-feature-body">
+        <p data-zh="《徐霞客游记》开篇写道：<strong>「癸丑之三月晦，自宁海出西门，云散日朗，人意山光，俱有喜态。」</strong>因此宁海被公认为徐霞客游记的开篇地。" data-en="Xu Xiake's Travels begins with: 'On the last day of the third lunar month, I set out from Ninghai's west gate...'">
+          《徐霞客游记》开篇写道：<strong>「癸丑之三月晦，自宁海出西门，云散日朗，人意山光，俱有喜态。」</strong>因此宁海被公认为徐霞客游记的开篇地。
+        </p>
+        <p data-zh="每年的<strong>5月19日</strong>（《徐霞客游记》开篇日）被定为中国旅游日，宁海同时举办盛大的徐霞客开游节，包括古道徒步、民俗表演、美食集市等丰富活动。" data-en="May 19 is China Tourism Day, Ninghai hosts the Xu Xiake Festival with hiking, performances, and food fairs.">
+          每年的<strong>5月19日</strong>被定为中国旅游日，宁海同时举办盛大的徐霞客开游节，包括古道徒步、民俗表演、美食集市等丰富活动。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 旅游推荐 -->
+<section class="nh-section nh-section-alt">
+  <div class="container">
+    <h2 class="nh-section-title" data-zh="🏝️ 旅游推荐" data-en="🏝️ Travel">🏝️ 旅游推荐</h2>
+    <div class="nh-travel-grid">
+      <div class="nh-travel-item" style="--accent:#e67e22">
+        <span class="nh-travel-icon">🏯</span>
+        <strong>前童古镇</strong>
+        <span data-zh="明清古建筑群，小桥流水人家" data-en="Ming-Qing architecture, waterways">明清古建筑群，小桥流水人家</span>
+      </div>
+      <div class="nh-travel-item" style="--accent:#27ae60">
+        <span class="nh-travel-icon">♨️</span>
+        <strong>森林温泉</strong>
+        <span data-zh="南溪温泉，天然氧吧" data-en="Nanxi Hot Springs">南溪温泉，天然氧吧</span>
+      </div>
+      <div class="nh-travel-item" style="--accent:#3498db">
+        <span class="nh-travel-icon">🌲</span>
+        <strong>浙东大峡谷</strong>
+        <span data-zh="峡谷幽深，飞瀑流泉" data-en="Grand Canyon, waterfalls">峡谷幽深，飞瀑流泉</span>
+      </div>
+      <div class="nh-travel-item" style="--accent:#8e44ad">
+        <span class="nh-travel-icon">🪨</span>
+        <strong>伍山石窟</strong>
+        <span data-zh="千年采石遗迹，洞窟奇观" data-en="Ancient quarry caves">千年采石遗迹，洞窟奇观</span>
+      </div>
+      <div class="nh-travel-item" style="--accent:#2c3e50">
+        <span class="nh-travel-icon">🏝️</span>
+        <strong>强蛟群岛</strong>
+        <span data-zh="象山港内群岛，海钓天堂" data-en="Islands in Xiangshan Bay">象山港内群岛，海钓天堂</span>
+      </div>
+      <div class="nh-travel-item" style="--accent:#c0392b">
+        <span class="nh-travel-icon">⛰️</span>
+        <strong>梁皇山</strong>
+        <span data-zh="徐霞客曾到访，山势险峻" data-en="Visited by Xu Xiake">徐霞客曾到访，山势险峻</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 长街镇 · 我长大的地方 -->
+<section class="nh-section">
+  <div class="container">
+    <h2 class="nh-section-title" data-zh="🌟 长街镇" data-en="🌟 Changjie Town">🌟 长街镇</h2>
+    <div class="nh-town">
+      <div class="nh-town-text">
+        <p data-zh="长街镇位于宁海县东部，濒临象山港，是一个山海兼具的美丽小镇。这里有绵长的海岸线和广阔的滩涂，是宁海最重要的渔业乡镇之一。" data-en="Changjie Town is in eastern Ninghai, near Xiangshan Port, a beautiful coastal town.">
+          长街镇位于宁海县东部，濒临象山港，是一个山海兼具的美丽小镇。这里有绵长的海岸线和广阔的滩涂，是宁海最重要的渔业乡镇之一。
+        </p>
+        <p data-zh="长街蛏子是国家地理标志产品，以其个大、肉嫩、味鲜而闻名。每年蛏子上市的季节，远近的食客都会慕名而来。" data-en="Changjie razor clams are a national geo-indication product, famous for their size and taste.">
+          <strong>长街蛏子</strong>是国家地理标志产品，以其个大、肉嫩、味鲜而闻名。每年蛏子上市的季节，远近的食客都会慕名而来。
+        </p>
+        <div class="nh-feature-list">
+          <span>📍 宁海东部 · 象山港畔</span>
+          <span>🦪 长街蛏子（国家地理标志）</span>
+          <span>🏖️ 海岸滩涂 · 赶海拾贝</span>
+          <span>🌅 海上日出 · 渔舟唱晚</span>
+        </div>
+      </div>
+      <div class="nh-town-photo">
+        <div class="nh-photo-placeholder" data-zh="📷 长街照片待补充" data-en="📷 Photo coming soon">📷 长街照片待补充</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 石桥头村 -->
+<section class="nh-section nh-section-alt">
+  <div class="container">
+    <h2 class="nh-section-title" data-zh="🌳 石桥头村" data-en="🌳 Shiqiaotou Village">🌳 石桥头村</h2>
+    <div class="nh-town">
+      <div class="nh-town-photo">
+        <div class="nh-photo-placeholder" data-zh="📷 石桥头村照片待补充" data-en="📷 Photo coming soon">📷 石桥头村照片待补充</div>
+      </div>
+      <div class="nh-town-text">
+        <p data-zh="石桥头村是长街镇下辖的一个小村庄，也是我出生长大的地方。村子不大，百来户人家，但承载了我全部的童年记忆。" data-en="Shiqiaotou Village is a small village under Changjie Town, where I was born and grew up.">
+          石桥头村是长街镇下辖的一个小村庄，也是我出生长大的地方。村子不大，百来户人家，但承载了我全部的童年记忆。
+        </p>
+        <p data-zh="小时候，村口有一棵大樟树，夏天全村人都在树下乘凉。稻田里抓青蛙，池塘边钓小龙虾，海滩上挖蛏子——这些都是最珍贵的回忆。" data-en="In my childhood, there was a big camphor tree at the village entrance, rice fields, ponds, and beaches full of memories.">
+          小时候，村口有一棵大樟树，夏天全村人都在树下乘凉。稻田里抓青蛙，池塘边钓小龙虾，海滩上挖蛏子——这些都是最珍贵的回忆。
+        </p>
+        <div class="nh-feature-list">
+          <span>🌳 村口大樟树</span>
+          <span>🌾 稻田 · 蛙声一片</span>
+          <span>🦐 池塘 · 钓小龙虾</span>
+          <span>🏖️ 滩涂 · 挖蛏子</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 宁海影集（占位） -->
+<section class="nh-section" style="border-bottom:none">
+  <div class="container">
+    <h2 class="nh-section-title" data-zh="📸 宁海影集" data-en="📸 Gallery">📸 宁海影集</h2>
+    <p class="nh-empty-album" data-zh="照片正在收集中，敬请期待..." data-en="Photos being collected, coming soon...">📷 照片正在收集中，敬请期待...</p>
+  </div>
+</section>
+
+<style>
+/* ===== 宁海页 · 海洋蓝风格 ===== */
+:root {
+  --nh-blue: #1a6b8a;
+  --nh-light: #e8f4f8;
+  --nh-accent: #e67e22;
+  --nh-green: #4a8c6f;
+}
+
+/* Hero */
+.nh-hero {
+  position: relative;
+  padding: 60px 0 50px;
+  background: linear-gradient(135deg, #1a6b8a 0%, #2980b9 50%, #1a5276 100%);
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+.nh-hero-bg { position: absolute; inset: 0; pointer-events: none; }
+.nh-wave {
+  position: absolute;
+  width: 200%; height: 60px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+  animation: nhWave 6s ease-in-out infinite;
+}
+.nh-wave-1 { bottom: -20px; left: -50%; animation-delay: 0s; }
+.nh-wave-2 { bottom: -30px; left: -30%; animation-delay: -2s; opacity: 0.5; }
+@keyframes nhWave { 0%,100%{transform:translateX(0)} 50%{transform:translateX(20px)} }
+.nh-hero-inner { position: relative; z-index: 1; }
+.nh-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 4px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+.nh-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.nh-sub {
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  color: rgba(255,255,255,0.6);
+  font-weight: 300;
+  max-width: 500px;
+  margin: 0 auto 20px;
+}
+.nh-stats {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.nh-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+}
+.nh-stat-val { font-size: 1.1rem; }
+.nh-stat-label { color: rgba(255,255,255,0.7); }
+
+/* Sections */
+.nh-section {
+  padding: 40px 0;
+  border-bottom: 2px solid var(--border);
+}
+.nh-section-alt { background: var(--bg-card); }
+.nh-section-title {
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+/* Map */
+.nh-map-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.nh-map-desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* Cards */
+.nh-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.nh-card {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: 20px;
+  transition: transform 0.2s;
+}
+.nh-card:hover { transform: translateY(-3px); }
+.nh-card-icon { font-size: 2rem; margin-bottom: 8px; }
+.nh-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+.nh-card ul { list-style: none; padding: 0; margin: 0; }
+.nh-card li {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+.nh-card li:last-child { border-bottom: none; }
+
+/* Feature */
+.nh-feature {
+  display: flex;
+  gap: 20px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: 24px;
+}
+.nh-feature-icon { font-size: 2.5rem; flex-shrink: 0; }
+.nh-feature-body p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+.nh-feature-body p:last-child { margin-bottom: 0; }
+.nh-feature-body strong { color: var(--text); }
+
+/* Travel grid */
+.nh-travel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.nh-travel-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: 18px 16px;
+  transition: transform 0.2s;
+}
+.nh-travel-item:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent, #3498db);
+}
+.nh-travel-icon { font-size: 1.5rem; }
+.nh-travel-item strong { font-size: 0.9rem; color: var(--text); }
+.nh-travel-item span { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; }
+
+/* Town section */
+.nh-town {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.nh-town-text p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+.nh-town-text strong { color: var(--text); }
+.nh-feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.nh-feature-list span {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.nh-photo-placeholder {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--bg-card);
+  border: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* Album empty */
+.nh-empty-album {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--bg-card);
+  border: 2px dashed var(--border);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ===== Dark theme overrides ===== */
+body:not(.light-theme) .nh-card { background: var(--bg-card); }
+body:not(.light-theme) .nh-feature { background: var(--bg-card); }
+body:not(.light-theme) .nh-travel-item { background: var(--bg-card); }
+body:not(.light-theme) .nh-photo-placeholder { background: var(--bg); }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .nh-hero { padding: 40px 0 30px; }
+  .nh-stats { gap: 6px; }
+  .nh-stat-item { font-size: 0.72rem; padding: 4px 10px; }
+  .nh-card-grid, .nh-travel-grid { grid-template-columns: 1fr; }
+  .nh-town { grid-template-columns: 1fr; }
+  .nh-feature { flex-direction: column; }
+  .nh-feature-icon { text-align: center; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 宁海地图（Leaflet）
+  if (typeof L !== 'undefined' && document.getElementById('ninghaiMap')) {
+    var map = L.map('ninghaiMap').setView([29.35, 121.45], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    // 宁海县城
+    L.marker([29.29, 121.43]).addTo(map).bindPopup('🏙️ 宁海县城');
+    // 长街镇
+    L.marker([29.38, 121.62]).addTo(map).bindPopup('🌟 长街镇 · 我长大的地方');
+    // 石桥头村（长街镇附近，约略坐标）
+    L.marker([29.37, 121.63]).addTo(map).bindPopup('🌳 石桥头村 · 我的老家');
+  }
+});
+</script>
+
+<%- include('partials/footer') %>

@@ -256,6 +256,12 @@ app.get('/about', (req, res) => {
   res.render('about', { title: '关于我 - shangtaopang-可与', categories, currentPage: 'about' });
 });
 
+// 宁海
+app.get('/ninghai', (req, res) => {
+  const categories = cachedQuery(`SELECT * FROM categories ORDER BY sort_order`);
+  res.render('ninghai', { title: '宁海·我的家乡 - shangtaopang-可与', categories, currentPage: 'ninghai' });
+});
+
 // 作品详情页
 app.get('/works/:id', (req, res) => {
   const works = getWorks();
