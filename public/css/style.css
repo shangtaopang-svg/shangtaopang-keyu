@@ -767,7 +767,7 @@ a:hover { color: #a5b4fc; }
 .site-footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 0; background: var(--bg-card); }
 .footer-inner { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; padding: 0 20px 24px; }
 .footer-logo { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
-.footer-desc { color: var(--text-muted); font-size: 0.8rem; line-height: 1.6; }
+.footer-desc { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.6; }
 .footer-col h4 { font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary); }
 .footer-col a { display: block; color: var(--text-muted) !important; font-size: 0.78rem; margin-bottom: 4px; padding: 2px 0; }
 .footer-col a:hover { color: var(--text) !important; }
