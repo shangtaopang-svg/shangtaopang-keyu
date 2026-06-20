@@ -27,7 +27,7 @@
               <video src="<%= p.filename %>" style="width:100%;height:100%;object-fit:cover" preload="metadata" onclick="this.paused ? this.play() : this.pause()"></video>
               <div class="photo-play-btn">▶</div>
             <% } else { %>
-              <img src="<%= p.filename %>" alt="<%= p.original_name || '' %>" loading="lazy">
+              <img src="<%= p.filename.replace('/uploads/albums/', '/uploads/albums/thumbs/') %>" data-full="<%= p.filename %>" alt="<%= p.original_name || '' %>" loading="lazy" decoding="async">
             <% } %>
             <div class="photo-desc">
               <% if (p.description) { %><span><%= p.description %></span><% } %>
@@ -49,7 +49,7 @@
 function openViewer(el) {
   const img = el.querySelector('img');
   if (!img) return;
-  document.getElementById('viewerImg').src = img.src;
+  document.getElementById('viewerImg').src = img.dataset.full || img.src;
   document.getElementById('photoViewer').style.display = 'block';
 }
 document.addEventListener('keydown', function(e) {

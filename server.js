@@ -73,7 +73,13 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '7d',
+  immutable: true,
+  setHeaders: (res, path) => {
+    if (path.match(/\/thumbs\//)) res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+  }
+}));
 
 // 设置 EJS 模板引擎
 app.set('view engine', 'ejs');
