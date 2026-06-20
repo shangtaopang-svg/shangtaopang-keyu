@@ -95,8 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem('pst-style', name);
     styleOpts.forEach(o => o.classList.toggle('active', o.dataset.style === name));
     if (styleBtn) {
-      const a = document.querySelector('.style-option.active');
-      styleBtn.textContent = a ? a.textContent : '🎨 首页风格';
+      styleBtn.innerHTML = '<span>🎨 首页风格</span>';
     }
   }
 
