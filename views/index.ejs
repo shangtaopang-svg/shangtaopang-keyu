@@ -702,6 +702,37 @@
   .df-date { margin-left: 0; width: 100%; text-align: right; }
 }
 
+/* 移动端 < 640px：调整天气卡片位置防遮挡 */
+@media (max-width: 640px) {
+  .hero-widget {
+    top: auto !important;
+    bottom: 8px !important;
+    right: 8px !important;
+    padding: 8px 14px !important;
+    min-width: 120px !important;
+  }
+  .hw-date { margin-bottom: 3px; padding-bottom: 3px; }
+  .hw-solar { font-size: 0.7rem !important; }
+  .hw-lunar { font-size: 0.6rem !important; }
+  .hw-icon { font-size: 1rem !important; }
+  .hw-temp { font-size: 0.75rem !important; }
+  .hw-desc { font-size: 0.65rem !important; }
+  .hero-slogan { top: 8% !important; font-size: clamp(0.85rem, 3.5vw, 1.1rem) !important; padding: 8px 14px !important; white-space: normal !important; }
+  [data-style="color-wall"] .hero-overlay { top: 58%; }
+  .hero-content { padding: 24px 16px !important; }
+  .hero-badge { font-size: 0.65rem !important; padding: 4px 12px !important; white-space: normal !important; }
+  .hero-title { font-size: clamp(1.3rem, 5vw, 1.6rem) !important; }
+  .hero-sub { font-size: 0.75rem !important; }
+  .hero-btn { font-size: 0.78rem !important; padding: 8px 18px !important; }
+  .hero-stats { gap: 4px !important; }
+  .hs-item { padding: 6px 10px !important; min-width: 60px !important; }
+  .hs-num { font-size: 1rem !important; }
+  .hs-label { font-size: 0.6rem !important; }
+  .hero-birthday { font-size: 0.7rem !important; padding: 6px 12px !important; }
+  .hb-count { font-size: 0.85rem !important; }
+  .hb-date { font-size: 0.6rem !important; }
+}
+
 /* ==========================================================
    风格切换 · 各风格 CSS 覆盖
    ========================================================== */

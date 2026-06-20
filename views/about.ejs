@@ -232,22 +232,22 @@
   <div class="container">
     <h2 class="ab-section-title centered" data-zh="🚀 做过的东西" data-en="🚀 Things I've Built">🚀 做过的东西</h2>
     <div class="ab-project-grid">
-      <a href="http://8.160.117.120/pages/genealogy.html" class="ab-project-card" target="_blank">
+      <a href="/works/1" class="ab-project-card">
         <span class="ab-project-icon">🌳</span>
         <span class="ab-project-name" data-zh="宁海谢氏家谱" data-en="Xie Family Tree">宁海谢氏家谱</span>
         <span class="ab-project-desc" data-zh="家族谱系可视化" data-en="Genealogy visualization">家族谱系可视化</span>
       </a>
-      <a href="http://8.160.117.120:5000/" class="ab-project-card" target="_blank">
+      <a href="/works/2" class="ab-project-card">
         <span class="ab-project-icon">📸</span>
         <span class="ab-project-name" data-zh="童寂 · 相册" data-en="Childhood Album">童寂 · 相册</span>
         <span class="ab-project-desc" data-zh="记录美好时光" data-en="Capture precious moments">记录美好时光</span>
       </a>
-      <a href="http://localhost:3000" class="ab-project-card">
+      <a href="/works/3" class="ab-project-card">
         <span class="ab-project-icon">🤖</span>
         <span class="ab-project-name" data-zh="AI学习平台" data-en="AI Learning Hub">AI学习平台</span>
         <span class="ab-project-desc" data-zh="就是你正在看的" data-en="The site you're on">就是你正在看的</span>
       </a>
-      <a href="https://69c695dbb22f0c28ae53e9fb--stellular-syrniki-ccae4c.netlify.app" class="ab-project-card" target="_blank">
+      <a href="/works/4" class="ab-project-card">
         <span class="ab-project-icon">🌾</span>
         <span class="ab-project-name" data-zh="五源兴农业" data-en="Wuyuanxing Agri">五源兴农业</span>
         <span class="ab-project-desc" data-zh="农业科技官网" data-en="Agri-tech website">农业科技官网</span>
@@ -880,6 +880,53 @@ document.getElementById('contactForm')?.addEventListener('submit', async functio
 [data-style="magazine"] .ab-project-card { box-shadow: none; border-color: #e0ddd5; }
 [data-style="magazine"] .ab-project-card:hover { transform: none; box-shadow: none; border-color: #c0392b; }
 [data-style="magazine"] .ab-contact { box-shadow: none; border-color: #e0ddd5; }
+
+/* ===== 暗色主题适配（页面硬编码了浅色，用CSS变量覆盖） ===== */
+body:not(.light-theme) .ab-hero { background: var(--bg-card); border-bottom-color: var(--border); color: var(--text); }
+body:not(.light-theme) .ab-badge { background: var(--primary); color: #000; box-shadow: 4px 4px 0 var(--accent); }
+body:not(.light-theme) .ab-name { color: var(--text); }
+body:not(.light-theme) .ab-sub { color: var(--primary); }
+body:not(.light-theme) .ab-stats-line { color: var(--text-secondary); }
+body:not(.light-theme) .ab-stats-line strong { color: var(--primary); }
+body:not(.light-theme) .ab-creds-inner { background: var(--bg-card); border-color: var(--border); color: var(--text); box-shadow: 5px 5px 0 rgba(0,0,0,0.3); }
+body:not(.light-theme) .ab-creds-text { color: var(--text); }
+body:not(.light-theme) .ab-numbers { background: var(--bg); border-bottom-color: var(--border); }
+body:not(.light-theme) .ab-num-item { background: var(--bg-card); border-color: var(--border); }
+body:not(.light-theme) .ab-num-val { color: var(--primary); }
+body:not(.light-theme) .ab-num-label { color: var(--text-secondary); }
+body:not(.light-theme) .ab-section { border-bottom-color: var(--border); }
+body:not(.light-theme) .ab-section-alt { background: var(--bg-card); border-top-color: var(--border); border-bottom-color: var(--border); }
+body:not(.light-theme) .ab-section-title { background: var(--primary); color: #000; box-shadow: 5px 5px 0 var(--accent); }
+body:not(.light-theme) .ab-story-text p { color: var(--text-secondary); }
+body:not(.light-theme) .ab-story-quote { background: var(--bg-card); border-color: var(--border); color: var(--text); }
+body:not(.light-theme) .ab-story-quote blockquote { color: var(--text); }
+body:not(.light-theme) .ab-story-quote cite { color: var(--primary); }
+body:not(.light-theme) .ab-skill-card { background: var(--bg-card); border-color: var(--border); }
+body:not(.light-theme) .ab-skill-card:hover { box-shadow: 8px 8px 0 var(--accent); }
+body:not(.light-theme) .ab-skill-card h3 { color: var(--text); }
+body:not(.light-theme) .ab-skill-bar { background: var(--border); border-color: var(--border); }
+body:not(.light-theme) .ab-skill-fill { background: var(--primary); }
+body:not(.light-theme) .ab-skill-year { color: var(--text-muted); }
+body:not(.light-theme) .ab-tools { background: var(--bg-card); border-color: var(--border); }
+body:not(.light-theme) .ab-tag { background: var(--bg-card); color: var(--text-secondary); border-color: var(--border); }
+body:not(.light-theme) .ab-tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+body:not(.light-theme) .ab-tl-item { background: var(--bg-card); border-color: var(--border); }
+body:not(.light-theme) .ab-tl-item:hover { box-shadow: -4px 4px 0 var(--accent); }
+body:not(.light-theme) .ab-tl-year { color: var(--primary); }
+body:not(.light-theme) .ab-tl-content strong { color: var(--text); }
+body:not(.light-theme) .ab-tl-content p { color: var(--text-secondary); }
+body:not(.light-theme) .ab-project-card { background: var(--bg-card); border-color: var(--border); }
+body:not(.light-theme) .ab-project-card:hover { box-shadow: 8px 8px 0 var(--accent); }
+body:not(.light-theme) .ab-project-name { color: var(--text); }
+body:not(.light-theme) .ab-project-desc { color: var(--text-muted); }
+body:not(.light-theme) .ab-contact { background: var(--bg-card); border-color: var(--border); }
+body:not(.light-theme) .ab-contact p { color: var(--text-secondary); }
+body:not(.light-theme) .ab-cf-input { background: var(--bg); border-color: var(--border); color: var(--text); }
+body:not(.light-theme) .ab-cf-input:focus { box-shadow: 4px 4px 0 var(--accent); }
+body:not(.light-theme) .ab-cf-btn { background: var(--primary); color: #000; border-color: var(--primary); }
+body:not(.light-theme) .ab-cf-btn:hover { background: var(--accent); border-color: var(--accent); }
+body:not(.light-theme) .ab-footer-tagline { color: var(--text-muted); }
+body:not(.light-theme) .ab-hero-shape { opacity: 0.08; }
 
 /* 响应式 */
 @media (max-width: 768px) {

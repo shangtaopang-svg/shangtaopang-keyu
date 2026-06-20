@@ -773,7 +773,8 @@ a:hover { color: #a5b4fc; }
 
 /* 社交链接 */
 .footer-social { display: flex; flex-direction: column; gap: 4px; }
-.social-link { display: flex !important; align-items: center; gap: 6px; padding: 3px 0 !important; }
+.social-link { display: flex !important; align-items: center; gap: 6px; padding: 3px 0 !important; white-space: nowrap; }
+.social-icon { width: 20px; text-align: center; flex-shrink: 0; }
 .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; flex-shrink: 0; font-size: 0.75rem; font-weight: 700; }
 .social-link:hover .social-icon { color: var(--primary); }
 .footer-bottom { border-top: 1px solid var(--border); padding: 12px 0; text-align: center; color: var(--text-muted); font-size: 0.75rem; }
@@ -1321,6 +1322,8 @@ a:hover { color: #a5b4fc; }
   .footer-inner { grid-template-columns: 1fr; gap: 20px; }
   .footer-col h4 { margin-bottom: 10px; }
   .footer-col a { padding: 6px 0; font-size: 0.9rem; }
+  .footer-social { flex-direction: row; flex-wrap: wrap; gap: 2px 12px; }
+  .footer-desc { white-space: normal; font-size: 0.75rem; }
 
   /* 作品列表 */
   .wk-grid { grid-template-columns: 1fr; }
