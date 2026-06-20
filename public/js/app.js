@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
     styleOpts.forEach(o => o.classList.toggle('active', o.dataset.style === name));
     if (styleBtn) {
       const a = document.querySelector('.style-option.active');
-      styleBtn.textContent = a ? a.textContent : '🎨 风格';
+      styleBtn.textContent = a ? a.textContent : '🎨 首页风格';
     }
   }
 
