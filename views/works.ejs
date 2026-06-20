@@ -168,21 +168,25 @@
 .wk-num { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); opacity: 0.4; font-family: 'Courier New', monospace; }
 
 /* ===== Theme overrides ===== */
-[data-style="organic"] .wk-hero { background: linear-gradient(135deg, #f5f0eb, #ede5d8, #f5f0eb); }
+[data-style="organic"] .wk-hero { background: linear-gradient(135deg, #f5f0eb, #ede5d8, #f5f0eb); color: #3d3229; }
 [data-style="organic"] .wk-card { border-color: #e8ddd0; border-radius: 18px; }
 [data-style="organic"] .wk-card:hover { border-color: #7a9e7e; }
-[data-style="organic"] .wk-title { background: linear-gradient(135deg, #3d3229, #7a9e7e); -webkit-background-clip: text; }
-[data-style="organic"] .wk-sub { color: rgba(60,50,42,0.5); }
+[data-style="organic"] .wk-title { background: linear-gradient(135deg, #3d3229, #7a9e7e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+[data-style="organic"] .wk-sub { color: #5a4a3a; }
 [data-style="organic"] .wk-count { background: rgba(122,158,126,0.12); border-color: rgba(122,158,126,0.2); color: #3d3229; }
 [data-style="organic"] .wk-count-num { color: #7a9e7e; }
-[data-style="brutalism"] .wk-hero { background: #f5f0e8; border-bottom: 4px solid #000; }
+
+[data-style="brutalism"] .wk-hero { background: #f5f0e8; border-bottom: 4px solid #000; color: #000; }
 [data-style="brutalism"] .wk-title { background: none; -webkit-text-fill-color: #000; color: #000; text-transform: uppercase; }
+[data-style="brutalism"] .wk-sub { color: #333; }
 [data-style="brutalism"] .wk-count { background: #fff; border: 3px solid #000; color: #000; }
 [data-style="brutalism"] .wk-count-num { color: #D35400; }
 [data-style="brutalism"] .wk-card { border-radius: 0; border-width: 3px; border-color: #000; }
 [data-style="brutalism"] .wk-card:hover { border-color: #D35400; box-shadow: 8px 8px 0 #000; }
-[data-style="magazine"] .wk-hero { background: linear-gradient(135deg, #faf8f5, #f0ece4, #faf8f5); border-bottom: 2px solid #c0392b; }
-[data-style="magazine"] .wk-title { font-family: Georgia, serif; background: none; -webkit-text-fill-color: #1a1a1a; }
+
+[data-style="magazine"] .wk-hero { background: linear-gradient(135deg, #faf8f5, #f0ece4, #faf8f5); border-bottom: 2px solid #c0392b; color: #1a1a1a; }
+[data-style="magazine"] .wk-title { font-family: Georgia, serif; background: none; -webkit-text-fill-color: #1a1a1a; color: #1a1a1a; }
+[data-style="magazine"] .wk-sub { color: #555; }
 [data-style="magazine"] .wk-count { background: transparent; border: 1px solid #c0392b; color: #1a1a1a; border-radius: 0; }
 [data-style="magazine"] .wk-count-num { color: #c0392b; font-family: Georgia, serif; }
 [data-style="magazine"] .wk-card { border-radius: 0; border-color: #e0ddd5; }
