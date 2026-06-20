@@ -702,34 +702,29 @@
   .df-date { margin-left: 0; width: 100%; text-align: right; }
 }
 
-/* 移动端 < 640px：调整布局，天气卡片放到口号下方 */
+/* 移动端 < 640px：口号和天气卡保持在第一个颜色区域（橙色区 0-30%） */
 @media (max-width: 640px) {
   .hero-wall {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    height: auto !important;
-    min-height: 100vh;
-    padding: 70px 0 0;
+    height: 100vh !important;
+    overflow: hidden;
+    display: block;
   }
-  .color-wall { position: fixed; height: 100%; }
+  .color-wall { position: fixed; }
   .hero-slogan {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    transform: none !important;
-    margin: 40px auto 8px;
+    position: absolute !important;
+    top: 10% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     font-size: clamp(0.9rem, 3.5vw, 1.1rem) !important;
     padding: 10px 18px !important;
     white-space: nowrap !important;
-    width: auto;
   }
   .hero-widget {
-    position: relative !important;
-    top: auto !important;
+    position: absolute !important;
+    top: 20% !important;
+    left: 50% !important;
     right: auto !important;
-    margin: 0 auto 12px;
+    transform: translate(-50%, -50%) !important;
     padding: 8px 16px !important;
     min-width: 140px !important;
     display: inline-flex;
@@ -746,14 +741,11 @@
   .hw-temp { font-size: 0.75rem !important; }
   .hw-desc { font-size: 0.65rem !important; }
   .hero-overlay {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: none !important;
+    position: absolute !important;
+    top: 58% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     width: 96%;
-    margin: auto auto 16px;
   }
   .hero-content { padding: 20px 16px !important; margin: 0 !important; border-radius: 14px; }
   .hero-badge { font-size: 0.62rem !important; padding: 4px 10px !important; white-space: nowrap !important; }
