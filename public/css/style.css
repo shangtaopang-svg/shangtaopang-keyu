@@ -764,13 +764,14 @@ a:hover { color: #a5b4fc; }
 }
 
 /* ===== 页脚（极简） ===== */
-.site-footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 0; background: var(--bg-card); }
+.site-footer { border-top: 1px solid #e0e0e0; margin-top: 40px; padding: 32px 0 0; background: #ffffff; }
 .footer-inner { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; padding: 0 20px 24px; }
-.footer-logo { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
-.footer-desc { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.6; }
-.footer-col h4 { font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary); }
-.footer-col a { display: block; color: var(--text-secondary) !important; font-size: 0.78rem; margin-bottom: 4px; padding: 2px 0; }
-.footer-col a:hover { color: var(--text) !important; }
+.footer-logo { font-size: 1rem; font-weight: 600; margin-bottom: 6px; color: #1a1a1a; }
+.footer-desc { color: #555555; font-size: 0.8rem; line-height: 1.6; }
+.footer-col h4 { font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; color: #1a1a1a; }
+.footer-col a { display: block; color: #555555 !important; font-size: 0.78rem; margin-bottom: 4px; padding: 2px 0; }
+.footer-col a:hover { color: #1a1a1a !important; }
+.footer-bottom { border-top-color: #e0e0e0; color: #999999; }
 
 /* 社交链接 */
 .footer-social { display: flex; flex-direction: column; gap: 4px; }
