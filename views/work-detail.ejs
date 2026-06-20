@@ -55,6 +55,20 @@
       </div>
     </div>
 
+    <!-- 项目照片 -->
+    <% if (work.photos && work.photos.length > 0) { %>
+    <div class="wd-section">
+      <h2 class="wd-section-title" data-zh="📷 项目照片" data-en="📷 Photos">📷 项目照片</h2>
+      <div class="wd-photo-grid">
+        <% work.photos.forEach(function(p) { %>
+          <a href="<%= p %>" target="_blank" class="wd-photo-item">
+            <img src="<%= p %>" alt="项目照片" loading="lazy">
+          </a>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+
     <!-- 项目链接 -->
     <div class="wd-section">
       <h2 class="wd-section-title" data-zh="🔗 项目链接" data-en="🔗 Links">🔗 项目链接</h2>
@@ -333,9 +347,29 @@
 .wk-card:hover .wk-arrow { transform: translateX(6px); }
 .wk-num { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); opacity: 0.4; font-family: 'Courier New', monospace; }
 
+.wd-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.wd-photo-item {
+  display: block;
+  border: 2px solid var(--border);
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  aspect-ratio: 1;
+}
+.wd-photo-item:hover { transform: scale(1.02); border-color: var(--primary); }
+.wd-photo-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 @media (max-width: 640px) {
   .wk-grid { grid-template-columns: 1fr; }
   .wd-grid-2 { grid-template-columns: 1fr; }
+  .wd-photo-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
 }
 </style>
 

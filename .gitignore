@@ -4,6 +4,7 @@ data.db
 *.log
 public/uploads/*
 public/uploads/albums/*
+!public/uploads/works/
 public/music/*
 111.JPG
 111_edited.jpg
