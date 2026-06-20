@@ -183,6 +183,7 @@ a:hover { color: #a5b4fc; }
   padding: 6px 12px; cursor: pointer; font-size: 0.78rem; font-weight: 700;
   color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;
   transition: var(--transition);
+  white-space: nowrap;
 }
 .style-btn:hover { border-color: var(--primary); color: var(--primary); }
 .style-menu {
@@ -1369,6 +1370,16 @@ a:hover { color: #a5b4fc; }
   .page-header { padding: 20px 0 14px; }
   .page-title { font-size: 1.3rem; }
   .page-desc { font-size: 0.8rem; }
+
+  /* 防止文字孤立换行 */
+  .hero-badge, .hero-sub, .hero-stats span, .hs-label,
+  .ab-badge, .ab-stats-line span, .ab-creds-text,
+  .wk-card-title, .cat-name, .model-name,
+  .footer-desc, .footer-col a,
+  .wd-btn span, .wd-tag,
+  .ab-section-title, .ab-project-name,
+  .page-title, .dash-link,
+  .style-btn, .lang-toggle, .theme-toggle { white-space: nowrap; }
 
   /* 留声机 */
   .vinyl-section { padding: 24px 10px 32px; }

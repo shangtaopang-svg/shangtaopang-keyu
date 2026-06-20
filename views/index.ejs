@@ -702,35 +702,71 @@
   .df-date { margin-left: 0; width: 100%; text-align: right; }
 }
 
-/* 移动端 < 640px：调整天气卡片位置防遮挡 */
+/* 移动端 < 640px：调整布局，天气卡片放到口号下方 */
 @media (max-width: 640px) {
-  .hero-widget {
-    top: auto !important;
-    bottom: 8px !important;
-    right: 8px !important;
-    padding: 8px 14px !important;
-    min-width: 120px !important;
+  .hero-wall {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto !important;
+    min-height: 100vh;
+    padding: 70px 0 0;
   }
-  .hw-date { margin-bottom: 3px; padding-bottom: 3px; }
-  .hw-solar { font-size: 0.7rem !important; }
-  .hw-lunar { font-size: 0.6rem !important; }
+  .color-wall { position: fixed; height: 100%; }
+  .hero-slogan {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 40px auto 8px;
+    font-size: clamp(0.9rem, 3.5vw, 1.1rem) !important;
+    padding: 10px 18px !important;
+    white-space: nowrap !important;
+    width: auto;
+  }
+  .hero-widget {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    margin: 0 auto 12px;
+    padding: 8px 16px !important;
+    min-width: 140px !important;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .hw-date, .hw-weather { margin-bottom: 0; padding-bottom: 0; border: none; display: inline-flex; align-items: center; gap: 4px; }
+  .hw-date { flex-direction: row; gap: 6px; }
+  .hw-weather { gap: 4px; }
+  .hw-solar { font-size: 0.75rem !important; }
+  .hw-lunar { font-size: 0.65rem !important; }
   .hw-icon { font-size: 1rem !important; }
   .hw-temp { font-size: 0.75rem !important; }
   .hw-desc { font-size: 0.65rem !important; }
-  .hero-slogan { top: 8% !important; font-size: clamp(0.85rem, 3.5vw, 1.1rem) !important; padding: 8px 14px !important; white-space: normal !important; }
-  [data-style="color-wall"] .hero-overlay { top: 58%; }
-  .hero-content { padding: 24px 16px !important; }
-  .hero-badge { font-size: 0.65rem !important; padding: 4px 12px !important; white-space: normal !important; }
-  .hero-title { font-size: clamp(1.3rem, 5vw, 1.6rem) !important; }
-  .hero-sub { font-size: 0.75rem !important; }
-  .hero-btn { font-size: 0.78rem !important; padding: 8px 18px !important; }
-  .hero-stats { gap: 4px !important; }
-  .hs-item { padding: 6px 10px !important; min-width: 60px !important; }
-  .hs-num { font-size: 1rem !important; }
-  .hs-label { font-size: 0.6rem !important; }
-  .hero-birthday { font-size: 0.7rem !important; padding: 6px 12px !important; }
-  .hb-count { font-size: 0.85rem !important; }
-  .hb-date { font-size: 0.6rem !important; }
+  .hero-overlay {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 96%;
+    margin: auto auto 16px;
+  }
+  .hero-content { padding: 20px 16px !important; margin: 0 !important; border-radius: 14px; }
+  .hero-badge { font-size: 0.62rem !important; padding: 4px 10px !important; white-space: nowrap !important; }
+  .hero-title { font-size: clamp(1.2rem, 5vw, 1.5rem) !important; }
+  .hero-sub { font-size: 0.7rem !important; white-space: nowrap !important; }
+  .hero-btn { font-size: 0.72rem !important; padding: 6px 14px !important; }
+  .hero-stats { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .hs-item { padding: 4px 6px !important; min-width: 0 !important; }
+  .hs-num { font-size: 0.9rem !important; }
+  .hs-label { font-size: 0.55rem !important; white-space: nowrap !important; }
+  .hero-birthday { font-size: 0.65rem !important; padding: 4px 10px !important; }
+  .hb-count { font-size: 0.75rem !important; }
+  .hb-date { font-size: 0.55rem !important; }
 }
 
 /* ==========================================================
