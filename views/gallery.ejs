@@ -25,7 +25,11 @@
       <a href="/gallery/<%= a.id %>" class="mag-card mag-<%= isFirst ? 'featured' : (isEven ? 'tall' : 'wide') %>">
         <div class="mag-img-wrap">
           <% if (albumCovers[a.id]) { %>
-            <img src="<%= albumCovers[a.id] %>" alt="<%= a.title %>" loading="lazy">
+            <% if ((albumCovers[a.id] || '').match(/\.(mp4|m4v|webm)$/i)) { %>
+              <div class="mag-img-placeholder">🎬</div>
+            <% } else { %>
+              <img src="<%= albumCovers[a.id] %>" alt="<%= a.title %>" loading="lazy">
+            <% } %>
           <% } else { %>
             <div class="mag-img-placeholder">📸</div>
           <% } %>
