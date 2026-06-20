@@ -12,6 +12,7 @@
       <span class="hw-lunar" id="hwLunar"><%= typeof lunarStr !== 'undefined' ? lunarStr : '' %></span>
     </div>
     <div class="hw-weather" id="hwWeather">
+      <span class="hw-loc">📍宁海</span>
       <span class="hw-icon" id="hwIcon">☀️</span>
       <span class="hw-temp" id="hwTemp">28°C</span>
       <span class="hw-desc" id="hwDesc">晴</span>
@@ -233,6 +234,12 @@
   gap: 6px;
 }
 
+.hw-loc {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  margin-right: 2px;
+}
 .hw-icon {
   font-size: 1.5rem;
   line-height: 1;
